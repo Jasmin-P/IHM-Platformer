@@ -14,6 +14,7 @@ public class PlayerController : MonoBehaviour
     public bool topDirectionLocked;
     public bool leftDirectionLocked;
     public bool rightDirectionLocked;
+    public bool canJump;
 
 
     private float minVelocity = 0.1f;
@@ -25,6 +26,8 @@ public class PlayerController : MonoBehaviour
 
     public float gravity = -100f;
     private float jumpForce;
+
+    public float timeDivider = 0.001f;
 
     private bool onDash = false;
 
@@ -166,28 +169,44 @@ public class PlayerController : MonoBehaviour
 
     public void Jump()
     {
-        if (bottomDirectionLocked)
+        if (canJump)
         {
+            velocity.y = 0;
             jumpForce = 250f;
             StartCoroutine(JumpCoroutine());
+            
         }
     }
 
+    
 
     private IEnumerator JumpCoroutine()
     {
         while (jumpForce > 0)
         {
-            jumpForce -= 25f;
-            yield return new WaitForFixedUpdate();
+            jumpForce -= 25f * Time.deltaTime * 50;
+
+            if (jumpForce < 0)
+            {
+                jumpForce = 0;
+            }
+            yield return new WaitForEndOfFrame();
         }
-        jumpForce = 0;
         yield return null;
     }
 
 
     private void LimitVelocity()
     {
+        if (velocity.x > maxXspeed)
+        {
+            velocity.x = maxXspeed;
+        }
+        else if (velocity.x < -maxXspeed)
+        {
+            velocity.x = -maxXspeed;
+        }
+
         if (velocity.y > maxYspeed)
         {
             velocity.y = maxYspeed;

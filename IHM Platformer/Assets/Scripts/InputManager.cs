@@ -27,8 +27,35 @@ public class InputManager : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.UpArrow))
         {
-            player.Jump();
+            if (player.canJump)
+            {
+                player.Jump();
+            }
+            else
+            {
+                StartCoroutine(JumpInputBuffer());
+            }
+            
         }
+    }
+
+
+    IEnumerator JumpInputBuffer()
+    {
+        int j = 20;
+        bool end = false;
+        while(j > 0 && !end)
+        {
+            if (player.canJump)
+            {
+                player.Jump();
+                end = true;
+            }
+            j--;
+            yield return new WaitForEndOfFrame();
+        }
+        
+        yield return null;
     }
 
 }

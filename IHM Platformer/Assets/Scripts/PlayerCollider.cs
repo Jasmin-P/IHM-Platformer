@@ -20,6 +20,10 @@ public class PlayerCollider : MonoBehaviour
     public float distance = 0.1f;
 
 
+    public float xJumpFlexibility = 0.1f;
+    public float yJumpFlexibility = 0.5f;
+    public int jumpNumberOfRays = 20;
+
 
     public float collisionDistance;
 
@@ -44,7 +48,9 @@ public class PlayerCollider : MonoBehaviour
         UpdateBounds();
         BottomCollision();
         RightCollision();
-
+        LeftCollision();
+        TopCollision();
+        CanJump();
     }
 
 
@@ -68,14 +74,29 @@ public class PlayerCollider : MonoBehaviour
         }
     }
 
-
+    private void LeftCollision()
+    {
+        RaycastHit2D hit = DetectCollision(topLeftPoint, bottomLeftPoint, Vector2.left, distance, numberOfRays);
+        if (hit)
+        {
+            if (!playerController.leftDirectionLocked)
+            {
+                playerController.Move(Vector2.left * hit.distance);
+                playerController.leftDirectionLocked = true;
+            }
+        }
+        else
+        {
+            playerController.leftDirectionLocked = false;
+        }
+    }
 
     private void RightCollision()
     {
         RaycastHit2D hit = DetectCollision(bottomRightPoint, topRightPoint, Vector2.right, distance, numberOfRays);
         if (hit)
         {
-            if (!playerController.bottomDirectionLocked)
+            if (!playerController.rightDirectionLocked)
             {
                 playerController.Move(Vector2.right * hit.distance);
                 playerController.rightDirectionLocked = true;
@@ -89,7 +110,7 @@ public class PlayerCollider : MonoBehaviour
 
     private void BottomCollision()
     {
-        RaycastHit2D hit = DetectCollision(bottomLeftPoint, bottomRightPoint, -Vector2.up, distance, numberOfRays);
+        RaycastHit2D hit = DetectCollision(bottomLeftPoint, bottomRightPoint, -Vector2.up, distance*2, numberOfRays);
         if (hit)
         {
             if (!playerController.bottomDirectionLocked)
@@ -104,6 +125,23 @@ public class PlayerCollider : MonoBehaviour
         }
     }
 
+    private void TopCollision()
+    {
+        RaycastHit2D hit = DetectCollision(topRightPoint, topLeftPoint, Vector2.up, distance, numberOfRays);
+        if (hit)
+        {
+            if (!playerController.topDirectionLocked)
+            {
+                playerController.Move(Vector2.up * hit.distance);
+                playerController.topDirectionLocked = true;
+            }
+        }
+        else
+        {
+            playerController.topDirectionLocked = false;
+        }
+    }
+
 
     private RaycastHit2D DetectCollision (Vector2 startPoint, Vector2 endPoint, Vector2 direction, float rayDistance, int rayNumber)
     {
@@ -112,6 +150,10 @@ public class PlayerCollider : MonoBehaviour
         RaycastHit2D hit;
         for (int i = 0; i < rayNumber; i++)
         {
+            x += (endPoint.x - startPoint.x) / (rayNumber + 1);
+            y += (endPoint.y - startPoint.y) / (rayNumber + 1);
+
+
             RayInfo ray;
             ray.origin = new Vector2(x, y);
             ray.direction = direction;
@@ -122,11 +164,38 @@ public class PlayerCollider : MonoBehaviour
             {
                 return hit;
             }
-            x += (endPoint.x - startPoint.x) / rayNumber;
-            y += (endPoint.y - startPoint.y) / rayNumber;
+            
         }
 
         return new RaycastHit2D();
+    }
+
+
+    private void CanJump()
+    {
+        Vector2 startPoint = bottomLeftPoint;
+        Vector2 endPoint = bottomRightPoint;
+
+        if (!playerController.leftDirectionLocked)
+        {
+            startPoint.x -= xJumpFlexibility;
+        }
+        if (!playerController.rightDirectionLocked)
+        {
+            endPoint.x += xJumpFlexibility;
+        }
+        RaycastHit2D hit = DetectCollision(startPoint, endPoint, -Vector2.up, yJumpFlexibility, jumpNumberOfRays);
+
+
+        if (hit)
+        {
+               
+            playerController.canJump = true;
+        }
+        else
+        {
+            playerController.canJump = false;
+        }
     }
 
 
