@@ -5,7 +5,7 @@ using UnityEngine;
 public class PlayerCollider : MonoBehaviour
 {
 
-    Collider2D collider;
+    Collider2D playerCollider;
     PlayerController playerController;
     Bounds bounds;
 
@@ -19,8 +19,6 @@ public class PlayerCollider : MonoBehaviour
     public int numberOfRays = 5;
     public float distance = 0.1f;
 
-    private List<RayInfo> rayList;
-
 
 
     public float collisionDistance;
@@ -30,27 +28,31 @@ public class PlayerCollider : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        collider = GetComponent<Collider2D>();
+        playerCollider = GetComponent<Collider2D>();
         playerController = GetComponent<PlayerController>();
-        if (!collider)
+        if (!playerCollider)
         {
             Debug.LogError("collider in PlayerCollider is an empty object");
         }
 
         UpdateBounds();
-        InitBottomRaycasts(numberOfRays, distance);
     }
 
     // Update is called once per frame
     void Update()
     {
         UpdateBounds();
-        CheckBottomRaycast();
+        BottomCollision();
+        RightCollision();
+
     }
+
+
+
 
     private void UpdateBounds()
     {
-        bounds = collider.bounds;
+        bounds = playerCollider.bounds;
         bounds.Expand(collisionDistance);
         bottomLeftPoint = new Vector2(bounds.min.x, bounds.min.y);
         bottomRightPoint = new Vector2(bounds.max.x, bounds.min.y);
@@ -66,59 +68,66 @@ public class PlayerCollider : MonoBehaviour
         }
     }
 
-    private void InitBottomRaycasts(int numberOfRay, float distance)
+
+
+    private void RightCollision()
     {
-        rayList = new List<RayInfo>();
-        float x1 = bottomLeftPoint.x;
-        float x2 = bottomRightPoint.x;
-        float y = bottomLeftPoint.y;
-        float x = x1;
-
-        for(int i = 0; i < numberOfRay; i++)
+        RaycastHit2D hit = DetectCollision(bottomRightPoint, topRightPoint, Vector2.right, distance, numberOfRays);
+        if (hit)
         {
-            RayInfo newRay = new RayInfo();
-            newRay.origin = new Vector2(x, y);
-            newRay.direction = new Vector2(0, -1);
-            newRay.distance = distance;
-            rayList.Add(newRay);
-
-            x += (x2 - x1) / (numberOfRay-1);
+            if (!playerController.bottomDirectionLocked)
+            {
+                playerController.Move(Vector2.right * hit.distance);
+                playerController.rightDirectionLocked = true;
+            }
+        }
+        else
+        {
+            playerController.rightDirectionLocked = false;
         }
     }
 
-    private void CheckBottomRaycast()
+    private void BottomCollision()
     {
-        bool rayhit = false;
-
-        for (int i = 0; i < rayList.Count; i++)
+        RaycastHit2D hit = DetectCollision(bottomLeftPoint, bottomRightPoint, -Vector2.up, distance, numberOfRays);
+        if (hit)
         {
-            RayInfo ray = rayList[i];
-            ray.origin.y = bottomLeftPoint.y;
-            
-
-            RaycastHit2D hit = Raycast(ray);
-            if (hit)
+            if (!playerController.bottomDirectionLocked)
             {
-                Debug.DrawLine(ray.origin + Vector2.left, ray.origin + Vector2.left -Vector2.up * hit.distance, Color.black, 30f);
-                if (!playerController.bottomDirectionLocked)
-                {
-                    playerController.Move(-Vector2.up * hit.distance);
-                    playerController.bottomDirectionLocked = true;
-                }
-                
-                rayhit = true;
-                break;
+                playerController.Move(-Vector2.up * hit.distance);
+                playerController.bottomDirectionLocked = true;
             }
         }
-
-        if (!rayhit)
+        else
         {
             playerController.bottomDirectionLocked = false;
         }
     }
 
 
+    private RaycastHit2D DetectCollision (Vector2 startPoint, Vector2 endPoint, Vector2 direction, float rayDistance, int rayNumber)
+    {
+        float x = startPoint.x;
+        float y = startPoint.y;
+        RaycastHit2D hit;
+        for (int i = 0; i < rayNumber; i++)
+        {
+            RayInfo ray;
+            ray.origin = new Vector2(x, y);
+            ray.direction = direction;
+            ray.distance = rayDistance;
+            hit = Raycast(ray);
 
+            if (hit)
+            {
+                return hit;
+            }
+            x += (endPoint.x - startPoint.x) / rayNumber;
+            y += (endPoint.y - startPoint.y) / rayNumber;
+        }
+
+        return new RaycastHit2D();
+    }
 
 
     private RaycastHit2D Raycast(RayInfo ray)

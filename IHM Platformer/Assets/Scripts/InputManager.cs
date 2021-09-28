@@ -4,15 +4,31 @@ using UnityEngine;
 
 public class InputManager : MonoBehaviour
 {
-    // Start is called before the first frame update
+    PlayerController player;
+
+
     void Start()
     {
-        
+        player = GetComponent<PlayerController>();
     }
 
-    // Update is called once per frame
+    
+
     void Update()
     {
-        
+        if (Input.GetKey(KeyCode.RightArrow))
+        {
+            player.RightKeyPressed();
+        }
+        else if (Input.GetKey(KeyCode.LeftArrow))
+        {
+            player.LeftkeyPressed();
+        }
+
+        if (Input.GetKeyDown(KeyCode.UpArrow))
+        {
+            player.Jump();
+        }
     }
+
 }

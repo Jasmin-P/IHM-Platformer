@@ -8,12 +8,27 @@ public class PlayerController : MonoBehaviour
     public Vector2 position;
     public Vector2 velocity;
 
-    public Vector2 gravity = new Vector2(0, -5f);
+    
 
     public bool bottomDirectionLocked;
     public bool topDirectionLocked;
     public bool leftDirectionLocked;
     public bool rightDirectionLocked;
+
+
+    private float minVelocity = 0.1f;
+    public float groundDeceleration;
+    public float groundAcceleration;
+    public float maxXspeed;
+    public float maxYspeed;
+
+
+    public float gravity = -100f;
+    private float jumpForce;
+
+    private bool onDash = false;
+
+    public float resultYForce;
 
     // Start is called before the first frame update
     void Start()
@@ -24,13 +39,8 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void LateUpdate()
     {
-        if (Input.GetKey(KeyCode.Space))
-        {
-            velocity += new Vector2(0, 0.1f);
-        }
-
         UpdateVelocity();
-        UpdatePosition();
+        UpdatePosition(); 
     }
 
     public void Move(Vector2 translatePosition)
@@ -40,7 +50,13 @@ public class PlayerController : MonoBehaviour
 
     private void UpdateVelocity()
     {
-        velocity += gravity * Time.deltaTime;
+        resultYForce = gravity + jumpForce;
+        velocity.y += gravity * Time.deltaTime;
+        velocity.y += jumpForce * Time.deltaTime;
+
+        float deceleration = GroundDeceleration();
+        velocity.x += deceleration * Time.deltaTime;
+        
 
         if (bottomDirectionLocked && velocity.y < 0)
         {
@@ -58,6 +74,11 @@ public class PlayerController : MonoBehaviour
         else if (rightDirectionLocked && velocity.x > 0)
         {
             velocity.x = 0;
+        }
+
+        if (!onDash)
+        {
+            LimitVelocity();
         }
     }
 
@@ -85,5 +106,95 @@ public class PlayerController : MonoBehaviour
         */
         position += velocity * Time.deltaTime;
         transform.position = position;
+    }
+
+
+    public void RightKeyPressed()
+    {
+        if (velocity.x < maxXspeed)
+        {
+            velocity.x += groundAcceleration * Time.deltaTime;
+        }
+    }
+
+    public void LeftkeyPressed()
+    {
+        if (velocity.x > -maxXspeed)
+        {
+            velocity.x -= groundAcceleration * Time.deltaTime;
+        }
+    }
+
+    private float GroundDeceleration()
+    {
+        if (bottomDirectionLocked)
+        {
+            //deceleration dans les airs
+            if (velocity.x > minVelocity)
+            {
+                return -groundDeceleration * 1.3f;
+            }
+            else if (velocity.x >= -minVelocity)
+            {
+                velocity.x = 0;
+                return 0;
+            }
+            else
+            {
+                return groundDeceleration * 1.3f;
+            }
+        }
+        else
+        {
+            //deceleration normale
+            if (velocity.x > minVelocity)
+            {
+                return -groundDeceleration;
+            }
+            else if (velocity.x >= -minVelocity)
+            {
+                velocity.x = 0;
+                return 0;
+            }
+            else
+            {
+                return groundDeceleration;
+            }
+        }
+        
+    }
+
+    public void Jump()
+    {
+        if (bottomDirectionLocked)
+        {
+            jumpForce = 250f;
+            StartCoroutine(JumpCoroutine());
+        }
+    }
+
+
+    private IEnumerator JumpCoroutine()
+    {
+        while (jumpForce > 0)
+        {
+            jumpForce -= 25f;
+            yield return new WaitForFixedUpdate();
+        }
+        jumpForce = 0;
+        yield return null;
+    }
+
+
+    private void LimitVelocity()
+    {
+        if (velocity.y > maxYspeed)
+        {
+            velocity.y = maxYspeed;
+        }
+        else if (velocity.y < -maxYspeed)
+        {
+            velocity.y = -maxYspeed;
+        }
     }
 }
