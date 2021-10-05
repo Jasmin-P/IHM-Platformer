@@ -6,37 +6,39 @@ public class InputManager : MonoBehaviour
 {
     PlayerController player;
 
+    private Vector2 direction_raw; //Vecteur non normalisé
+    private Vector2 direction; //Vecteur normalisé de la direction dans laquelle on va
+    public float deadZoneThreshold;
 
     void Start()
     {
         player = GetComponent<PlayerController>();
     }
 
-    
+    private float Filter(float f) //Sert à ne faire passer que les valeurs supérieures à deadZoneThreshold
+    {
+        if (Mathf.Abs(f) > deadZoneThreshold)
+        {
+            return f;
+        }
+        else
+        {
+            return 0f;
+        }
+    }
+
 
     void Update()
     {
-        if (Input.GetKey(KeyCode.RightArrow))
+        direction_raw = Vector3.right * Filter(Input.GetAxis("Horizontal")) + Vector3.up * Filter(Input.GetAxis("Vertical")) ;
+        direction = direction_raw.normalized;
+
+        if (Input.GetButton("A"))
         {
-            player.RightKeyPressed();
-        }
-        else if (Input.GetKey(KeyCode.LeftArrow))
-        {
-            player.LeftkeyPressed();
+            player.Jump();
         }
 
-        if (Input.GetKeyDown(KeyCode.UpArrow))
-        {
-            if (player.canJump)
-            {
-                player.Jump();
-            }
-            else
-            {
-                StartCoroutine(JumpInputBuffer());
-            }
-            
-        }
+        player.MoveX(direction);
     }
 
 
@@ -57,5 +59,7 @@ public class InputManager : MonoBehaviour
         
         yield return null;
     }
+
+   
 
 }
