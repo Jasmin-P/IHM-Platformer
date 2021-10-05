@@ -8,6 +8,7 @@ public class PlayerController : MonoBehaviour
     public Vector2 position;
     public Vector2 velocity;
 
+    public static PlayerController instance;
     
 
     public bool bottomDirectionLocked;
@@ -30,8 +31,25 @@ public class PlayerController : MonoBehaviour
     public float timeDivider = 0.001f;
 
     private bool onDash = false;
+    private float timeStartDash;
+    public float timeDurationDash = 0.2f;
+    public float dashForce = 20f;
+    
+    private Vector2 dashDirection;
 
     public float resultYForce;
+
+    private void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+        }
+        else
+        {
+            Destroy(this);
+        }
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -53,8 +71,20 @@ public class PlayerController : MonoBehaviour
 
     private void UpdateVelocity()
     {
-        resultYForce = gravity + jumpForce;
-        velocity.y += gravity * Time.deltaTime;
+
+
+        if (!onDash)
+        {
+            // pas de gravité pendant le dash
+            velocity.y += gravity * Time.deltaTime;
+        }
+        else
+        {
+            velocity += dashForce * dashDirection;
+            UpdateDash();
+        }
+        
+        
         velocity.y += jumpForce * Time.deltaTime;
 
         float deceleration = GroundDeceleration();
@@ -108,6 +138,9 @@ public class PlayerController : MonoBehaviour
         }
         */
         position += velocity * Time.deltaTime;
+
+
+
         transform.position = position;
     }
 
@@ -214,6 +247,21 @@ public class PlayerController : MonoBehaviour
         else if (velocity.y < -maxYspeed)
         {
             velocity.y = -maxYspeed;
+        }
+    }
+
+    public void Dash(Vector2 dashDirection)
+    {
+        onDash = true;
+        this.dashDirection = dashDirection;
+        timeStartDash = Time.time;
+    }
+
+    private void UpdateDash()
+    {
+        if (Time.time - timeStartDash > timeDurationDash)
+        {
+            onDash = false;
         }
     }
 }
