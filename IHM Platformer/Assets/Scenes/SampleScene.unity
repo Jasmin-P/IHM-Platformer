@@ -389,12 +389,23 @@ MonoBehaviour:
   leftDirectionLocked: 0
   rightDirectionLocked: 0
   canJump: 0
-  groundDeceleration: 35
-  groundAcceleration: 60
+  timeDurationJump: 0.2
+  jumpForce: 18
+  released: 0
+  grabFallingSpeed: 3
+  wallJumpForce: {x: 80, y: 20}
+  onWallJump: 0
+  gravity: -100
+  groundAcceleration: 80
   maxXspeed: 10
   maxYspeed: 20
-  gravity: -50
+  groundDecelerationCoefficient: 0.5
+  airDecelerationCoefficient: 0.7
+  groundDeceleration: 20
+  airDeceleration: 20
   timeDivider: 0.001
+  timeDurationDash: 0.2
+  dashForce: 20
   resultYForce: 0
 --- !u!114 &292331761
 MonoBehaviour:
