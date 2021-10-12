@@ -23,7 +23,6 @@ public class InputManager : MonoBehaviour
     {
         direction_raw = Vector2.right * Filter(Input.GetAxis("Horizontal")) + Vector2.up * Filter(Input.GetAxis("Vertical"));
         direction = direction_raw.normalized;
-        print(direction.x);
 
         if (direction.x > 0)
         {
@@ -33,6 +32,37 @@ public class InputManager : MonoBehaviour
         {
             player.LeftkeyPressed();
         }
+
+
+        /*
+        var input = Input.inputString;
+
+        switch (input)
+        {
+            case ("joystick button 0"):
+                if (player.canJump)
+                {
+                    player.Jump();
+                }
+                else
+                {
+                    StartCoroutine(JumpInputBuffer());
+                }
+                break;
+            case ("X"):
+                player.Dash(direction);
+                break;
+            case ("joystick button 1"):
+                //player.Sprint()
+                print("B pressed");
+                break;
+            default:
+                break;
+        }
+
+        */
+
+        
 
         if (Input.GetButtonDown("A"))
         {
@@ -46,6 +76,12 @@ public class InputManager : MonoBehaviour
             }
             
         }
+        if (Input.GetButtonDown("X"))
+        {
+            player.Dash(direction);
+        }
+        
+
     }
 
     public float Filter(float f)
