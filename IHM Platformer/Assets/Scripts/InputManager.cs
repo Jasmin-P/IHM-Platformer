@@ -80,6 +80,16 @@ public class InputManager : MonoBehaviour
         {
             player.Dash(direction);
         }
+        if (Input.GetButtonDown("B"))
+        {
+            print("B pressed");
+            //player.Sprint();
+        }
+        if (Input.GetButtonUp("B"))
+        {
+            print("B released");
+            //player.StopSprinting();
+        }
         
 
     }
