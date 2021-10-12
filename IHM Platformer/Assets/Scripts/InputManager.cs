@@ -23,13 +23,13 @@ public class InputManager : MonoBehaviour
     {
         direction_raw = Vector2.right * Filter(Input.GetAxis("Horizontal")) + Vector2.up * Filter(Input.GetAxis("Vertical"));
         direction = direction_raw.normalized;
+        print(direction.x);
 
-
-        if (Input.GetKey(KeyCode.RightArrow))
+        if (direction.x > 0)
         {
             player.RightKeyPressed();
         }
-        else if (Input.GetKey(KeyCode.LeftArrow))
+        else if (direction.x < 0)
         {
             player.LeftkeyPressed();
         }
