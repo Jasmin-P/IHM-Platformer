@@ -9,24 +9,47 @@ public class PlayerController : MonoBehaviour
     public Vector2 velocity;
 
     public static PlayerController instance;
+
+    private PlayerCollider playerCollider;
     
 
     public bool bottomDirectionLocked;
     public bool topDirectionLocked;
     public bool leftDirectionLocked;
     public bool rightDirectionLocked;
-    public bool canJump;
 
+    // Jump
+    public bool canJump;
+    private bool onJump;
+    private float timeStartJump;
+    public float timeDurationJump = 0.2f;
+    private float previousTimeJump;
+    public float jumpForce = 250f;
+    private float variableJumpForce;
+    public bool released = false;
+
+    // grab
+    private bool onGrab;
+    public float grabFallingSpeed;
+    private Vector2 grabDirection;
+
+    public Vector2 wallJumpForce;
+    public bool onWallJump;
+
+    public float gravity = -100f;
 
     private float minVelocity = 0.1f;
-    public float groundDeceleration;
+    
     public float groundAcceleration;
     public float maxXspeed;
     public float maxYspeed;
 
+    public float groundDecelerationCoefficient;
+    public float airDecelerationCoefficient;
+    public float groundDeceleration;
+    public float airDeceleration;
 
-    public float gravity = -100f;
-    private float jumpForce;
+
 
     public float timeDivider = 0.001f;
 
@@ -55,37 +78,52 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         position = transform.position;
+        playerCollider = GetComponent<PlayerCollider>();
     }
 
     // Update is called once per frame
-    void LateUpdate()
+    void Update()
     {
         UpdateVelocity();
-        UpdatePosition(); 
+        UpdatePosition();
     }
 
-    public void Move(Vector2 translatePosition)
-    {
-        position += translatePosition;
-    }
+    
 
     private void UpdateVelocity()
     {
 
-
-        if (!onDash)
-        {
-            // pas de gravité pendant le dash
-            velocity.y += gravity * Time.deltaTime;
-        }
-        else
+        // pas de gravité pendant le dash
+        if (onDash)
         {
             velocity += dashForce * dashDirection;
             UpdateDash();
         }
-        
-        
-        velocity.y += jumpForce * Time.deltaTime;
+        else
+        {
+            velocity.y += gravity * Time.deltaTime;
+        }
+
+        if (onJump)
+        {
+            UpdateJump();
+        }
+
+        if (onGrab)
+        {
+            velocity.y = -grabFallingSpeed;
+        }
+
+        /*
+        if (onGrab)
+        {
+            if (grabDirection.x < 0 && Input.GetKey(KeyCode.Space))
+            {
+                WallJump(new Vector2(1, 0));
+            }
+        }
+        */
+
 
         float deceleration = GroundDeceleration();
         velocity.x += deceleration * Time.deltaTime;
@@ -108,67 +146,67 @@ public class PlayerController : MonoBehaviour
         {
             velocity.x = 0;
         }
-
-        if (!onDash)
-        {
-            LimitVelocity();
-        }
     }
 
     private void UpdatePosition()
     {
-        /*
-        if (!leftDirectionLocked && velocity.x < 0)
-        {
-            position.x += velocity.x * Time.deltaTime;
-        }
-        else if (!rightDirectionLocked && velocity.x > 0)
-        {
-            position.x += velocity.x * Time.deltaTime;
-        }
-
-
-        if (!bottomDirectionLocked && velocity.y < 0)
-        {
-            position.y += velocity.y * Time.deltaTime;
-        }
-        else if (!topDirectionLocked && velocity.y > 0)
-        {
-            position.y += velocity.y * Time.deltaTime;
-        }
-        */
         position += velocity * Time.deltaTime;
 
-
+        //playerCollider.UpdateCollisions(position);
 
         transform.position = position;
+    }
+
+    public void Move(Vector2 translatePosition)
+    {
+        position += translatePosition;
     }
 
 
     public void RightKeyPressed()
     {
-        if (velocity.x < maxXspeed)
+        velocity.x += groundAcceleration * Time.deltaTime;
+        Grab(new Vector2(1,0));
+
+        if (onGrab)
         {
-            velocity.x += groundAcceleration * Time.deltaTime;
+            if (grabDirection.x < 0)
+            {
+                WallJump(new Vector2(1, 0));
+            }
         }
     }
 
     public void LeftkeyPressed()
     {
-        if (velocity.x > -maxXspeed)
+        velocity.x -= groundAcceleration * Time.deltaTime;
+        Grab(new Vector2(-1, 0));
+
+
+        if (onGrab)
         {
-            velocity.x -= groundAcceleration * Time.deltaTime;
+            if (grabDirection.x > 0)
+            {
+                WallJump(new Vector2(-1, 0));
+            }
         }
+    }
+
+    public void MoveX(Vector2 xDirection)
+    {
+        velocity.x += groundAcceleration * Mathf.Sign(xDirection.x);
+
+        Grab(xDirection);
     }
 
     private float GroundDeceleration()
     {
         if (bottomDirectionLocked)
         {
-            //deceleration dans les airs
+            //deceleration normale
             if (velocity.x > minVelocity)
             {
-                return -groundDeceleration * 1.3f;
+                return -(groundDecelerationCoefficient * velocity.x * velocity.x + groundDeceleration);
             }
             else if (velocity.x >= -minVelocity)
             {
@@ -177,15 +215,15 @@ public class PlayerController : MonoBehaviour
             }
             else
             {
-                return groundDeceleration * 1.3f;
+                return (groundDecelerationCoefficient * velocity.x * velocity.x + groundDeceleration);
             }
         }
         else
         {
-            //deceleration normale
+            //deceleration dans les airs
             if (velocity.x > minVelocity)
             {
-                return -groundDeceleration;
+                return -(airDecelerationCoefficient * velocity.x * velocity.x + airDeceleration);
             }
             else if (velocity.x >= -minVelocity)
             {
@@ -194,41 +232,62 @@ public class PlayerController : MonoBehaviour
             }
             else
             {
-                return groundDeceleration;
+                return (airDecelerationCoefficient * velocity.x * velocity.x + airDeceleration);
             }
         }
         
     }
 
+    // Jump
     public void Jump()
     {
         if (canJump)
         {
-            velocity.y = 0;
-            jumpForce = 250f;
-            StartCoroutine(JumpCoroutine());
-            
+            velocity.y = jumpForce;
+            variableJumpForce = jumpForce;
+            onJump = true;
+            timeStartJump = Time.time;
         }
+
+        
     }
 
-    
-
-    private IEnumerator JumpCoroutine()
+    public void JumpRelease()
     {
-        while (jumpForce > 0)
-        {
-            jumpForce -= 25f * Time.deltaTime * 50;
+        released = true;
+    }
 
-            if (jumpForce < 0)
-            {
-                jumpForce = 0;
-            }
-            yield return new WaitForEndOfFrame();
+    private void UpdateJump()
+    {
+        /*
+        if (Input.GetKeyUp(KeyCode.UpArrow))
+        {
+            JumpRelease();
+            released = true;
         }
-        yield return null;
+        */
+
+        if (Time.time - timeStartJump > timeDurationJump)
+        {
+            onJump = false;
+            released = false;
+        }
+        else
+        {
+              velocity.y = variableJumpForce;
+        }
+
+        if (released && Time.time - timeStartJump > timeDurationJump * 0.5f)
+        {
+            variableJumpForce = jumpForce * 0.5f;
+        }
+
+        previousTimeJump = Time.time;
     }
 
 
+
+    // pas utilisé
     private void LimitVelocity()
     {
         if (velocity.x > maxXspeed)
@@ -263,5 +322,29 @@ public class PlayerController : MonoBehaviour
         {
             onDash = false;
         }
+    }
+
+    public void Grab(Vector2 direction)
+    {
+        if (leftDirectionLocked && direction.x < 0 && !onJump && velocity.y < 0)
+        {
+            onGrab = true;
+            grabDirection = direction;
+        }
+        else if (rightDirectionLocked && direction.x > 0 && !onJump && velocity.y < 0)
+        {
+            onGrab = true;
+            grabDirection = direction;
+        }
+        else
+        {
+            onGrab = false;
+        }
+    }
+
+    public void WallJump(Vector2 direction)
+    {
+        onWallJump = true;
+        velocity = new Vector2(direction.x * wallJumpForce.x, wallJumpForce.y);
     }
 }

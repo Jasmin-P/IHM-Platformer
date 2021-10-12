@@ -16,6 +16,8 @@ public class InputManager : MonoBehaviour
 
     void Update()
     {
+
+
         if (Input.GetKey(KeyCode.RightArrow))
         {
             player.RightKeyPressed();
