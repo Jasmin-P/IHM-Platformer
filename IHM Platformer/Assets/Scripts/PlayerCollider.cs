@@ -16,7 +16,7 @@ public class PlayerCollider : MonoBehaviour
     public Vector2 topLeftPoint;
     public Vector2 topRightPoint;
 
-    public int numberOfRays = 5;
+    public int numberOfRays = 3;
     public float distance = 0.1f;
 
 
@@ -79,70 +79,81 @@ public class PlayerCollider : MonoBehaviour
 
     private void LeftCollision()
     {
-        RaycastHit2D hit = DetectCollision(topLeftPoint, bottomLeftPoint, Vector2.left, distance, numberOfRays);
-        if (hit)
+        if (PlayerController.instance.velocity.x <= 0)
         {
-            if (!playerController.leftDirectionLocked)
+            RaycastHit2D hit = DetectCollision(topLeftPoint, bottomLeftPoint, Vector2.left, distance, numberOfRays);
+            if (hit)
             {
-                playerController.Move(Vector2.left * hit.distance);
-                playerController.leftDirectionLocked = true;
+                if (!playerController.leftDirectionLocked)
+                {
+                    playerController.Move(Vector2.left * hit.distance);
+                    playerController.leftDirectionLocked = true;
+                }
             }
-        }
-        else
-        {
-            playerController.leftDirectionLocked = false;
+            else
+            {
+                playerController.leftDirectionLocked = false;
+            }
         }
     }
 
     private void RightCollision()
     {
-        RaycastHit2D hit = DetectCollision(bottomRightPoint, topRightPoint, Vector2.right, distance, numberOfRays);
-        if (hit)
+        if (PlayerController.instance.velocity.x >= 0)
         {
-            if (!playerController.rightDirectionLocked)
+            RaycastHit2D hit = DetectCollision(bottomRightPoint, topRightPoint, Vector2.right, distance, numberOfRays);
+            if (hit)
             {
-                playerController.Move(Vector2.right * hit.distance);
-                playerController.rightDirectionLocked = true;
+                if (!playerController.rightDirectionLocked)
+                {
+                    playerController.Move(Vector2.right * hit.distance);
+                    playerController.rightDirectionLocked = true;
+                }
             }
-        }
-        else
-        {
-            playerController.rightDirectionLocked = false;
+            else
+            {
+                playerController.rightDirectionLocked = false;
+            }
         }
     }
 
     private void BottomCollision()
     {
-        RaycastHit2D hit = DetectCollision(bottomLeftPoint, bottomRightPoint, -Vector2.up, distance*2, numberOfRays);
-        //RaycastHit2D hit = DetectCollision(new Vector2(bottomLeftPoint.x-distance,bottomLeftPoint.y), new Vector2(bottomRightPoint.x + distance, bottomRightPoint.y), -Vector2.up, distance*2, numberOfRays);
-        if (hit)
+        if (PlayerController.instance.velocity.y <= 0)
         {
-            if (!playerController.bottomDirectionLocked)
+            RaycastHit2D hit = DetectCollision(bottomLeftPoint, bottomRightPoint, -Vector2.up, distance * 2, numberOfRays);
+            if (hit)
             {
-                playerController.Move(-Vector2.up * hit.distance);
-                playerController.bottomDirectionLocked = true;
+                if (!playerController.bottomDirectionLocked)
+                {
+                    playerController.Move(-Vector2.up * hit.distance);
+                    playerController.bottomDirectionLocked = true;
+                }
             }
-        }
-        else
-        {
-            playerController.bottomDirectionLocked = false;
+            else
+            {
+                playerController.bottomDirectionLocked = false;
+            }
         }
     }
 
     private void TopCollision()
     {
-        RaycastHit2D hit = DetectCollision(topRightPoint, topLeftPoint, Vector2.up, distance, numberOfRays);
-        if (hit)
+        if (PlayerController.instance.velocity.y >= 0)
         {
-            if (!playerController.topDirectionLocked)
+            RaycastHit2D hit = DetectCollision(topRightPoint, topLeftPoint, Vector2.up, distance, numberOfRays);
+            if (hit)
             {
-                playerController.Move(Vector2.up * hit.distance);
-                playerController.topDirectionLocked = true;
+                if (!playerController.topDirectionLocked)
+                {
+                    playerController.Move(Vector2.up * hit.distance);
+                    playerController.topDirectionLocked = true;
+                }
             }
-        }
-        else
-        {
-            playerController.topDirectionLocked = false;
+            else
+            {
+                playerController.topDirectionLocked = false;
+            }
         }
     }
 
@@ -274,5 +285,39 @@ public class PlayerCollider : MonoBehaviour
     private void OnCollisionEnter2D(Collision2D collision)
     {
         Debug.Log(collision.gameObject);
+    }
+
+    Vector2 UpdateCollisions(Vector2 futurePosition) // fonction à tester
+    {   //bottomLeftPoint/2 + topLeftPoint/2 = 1/2 * (bottomLeftPoint + topLeftPoint) 
+        RaycastHit2D hitDown = DetectCollision(bottomLeftPoint / 2 + topLeftPoint / 2, bottomRightPoint / 2 + topRightPoint / 2, Vector2.down, Vector2.Distance((bottomLeftPoint + topRightPoint) / 2, futurePosition), numberOfRays);
+        RaycastHit2D hitUp = DetectCollision(bottomLeftPoint / 2 + topLeftPoint / 2, bottomRightPoint / 2 + topRightPoint / 2, Vector2.up, Vector2.Distance((bottomLeftPoint + topRightPoint) / 2, futurePosition), numberOfRays);
+        RaycastHit2D hitLeft = DetectCollision(bottomLeftPoint / 2 + bottomRightPoint / 2, topLeftPoint / 2 + topRightPoint / 2, Vector2.left, Vector2.Distance((bottomLeftPoint + topRightPoint) / 2, futurePosition), numberOfRays); 
+        RaycastHit2D hitRight = DetectCollision(bottomLeftPoint / 2 + bottomRightPoint / 2, topLeftPoint / 2 + topRightPoint/2, Vector2.right, Vector2.Distance((bottomLeftPoint + topRightPoint) / 2, futurePosition), numberOfRays);
+        Vector2 nextPosition = new Vector2();
+        if (hitDown)
+        {
+            nextPosition.y = hitDown.transform.position.y;
+        }
+        if (hitUp)
+        {
+            nextPosition.y = hitUp.transform.position.y;
+        }
+        if (hitLeft)
+        {
+            nextPosition.x = hitLeft.transform.position.x;
+        }
+        if (hitRight)
+        {
+            nextPosition.x = hitRight.transform.position.x;
+        }
+        if (!hitLeft && !hitRight)
+        {
+            nextPosition.x = futurePosition.x;
+        }
+        if(!hitDown && !hitUp)
+        {
+            nextPosition.y = futurePosition.y;
+        }
+        return nextPosition;
     }
 }

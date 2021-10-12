@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-
     public Vector2 position;
     public Vector2 velocity;
 
@@ -111,7 +110,7 @@ public class PlayerController : MonoBehaviour
 
         if (!onDash)
         {
-            LimitVelocity();
+            //LimitVelocity();
         }
     }
 
