@@ -6,6 +6,7 @@ public class PlayerController : MonoBehaviour
 {
 
     public Vector2 position;
+    private Vector2 lastPosition;
     public Vector2 velocity;
 
     public static PlayerController instance;
@@ -62,6 +63,8 @@ public class PlayerController : MonoBehaviour
 
     public float resultYForce;
 
+    int i = 0;
+
     private void Awake()
     {
         if (instance == null)
@@ -84,8 +87,10 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+ 
         UpdateVelocity();
         UpdatePosition();
+        
     }
 
     
@@ -129,6 +134,7 @@ public class PlayerController : MonoBehaviour
         velocity.x += deceleration * Time.deltaTime;
         
 
+        /*
         if (bottomDirectionLocked && velocity.y < 0)
         {
             velocity.y = 0;
@@ -146,15 +152,22 @@ public class PlayerController : MonoBehaviour
         {
             velocity.x = 0;
         }
+        */
     }
 
     private void UpdatePosition()
     {
         position += velocity * Time.deltaTime;
 
-        //playerCollider.UpdateCollisions(position);
+        Vector2 movement = position - new Vector2(lastPosition.x, lastPosition.y);
 
+        playerCollider.UpdateCollisions(ref movement);
+
+        position = new Vector2(lastPosition.x + movement.x, lastPosition.y + movement.y);
+
+        lastPosition = position;
         transform.position = position;
+
     }
 
     public void Move(Vector2 translatePosition)
@@ -183,13 +196,7 @@ public class PlayerController : MonoBehaviour
         Grab(new Vector2(-1, 0));
 
 
-        if (onGrab)
-        {
-            if (grabDirection.x > 0)
-            {
-                WallJump(new Vector2(-1, 0));
-            }
-        }
+        
     }
 
     public void MoveX(Vector2 xDirection)
@@ -249,6 +256,18 @@ public class PlayerController : MonoBehaviour
             timeStartJump = Time.time;
         }
 
+        else if (onGrab)
+        {
+            if (grabDirection.x >= 0)
+            {
+                WallJump(new Vector2(-1, 0));
+            }
+            else
+            {
+                WallJump(new Vector2(1, 0));
+            }
+        }
+
         
     }
 
@@ -259,14 +278,6 @@ public class PlayerController : MonoBehaviour
 
     private void UpdateJump()
     {
-        /*
-        if (Input.GetKeyUp(KeyCode.UpArrow))
-        {
-            JumpRelease();
-            released = true;
-        }
-        */
-
         if (Time.time - timeStartJump > timeDurationJump)
         {
             onJump = false;
