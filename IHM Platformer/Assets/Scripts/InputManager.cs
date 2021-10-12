@@ -6,6 +6,11 @@ public class InputManager : MonoBehaviour
 {
     PlayerController player;
 
+    private Vector2 direction_raw;
+    private Vector2 direction;
+
+    public float deadZone;
+
 
     void Start()
     {
@@ -16,6 +21,8 @@ public class InputManager : MonoBehaviour
 
     void Update()
     {
+        direction_raw = Vector2.right * Filter(Input.GetAxis("Horizontal")) + Vector2.up * Filter(Input.GetAxis("Vertical"));
+        direction = direction_raw.normalized;
 
 
         if (Input.GetKey(KeyCode.RightArrow))
@@ -27,7 +34,7 @@ public class InputManager : MonoBehaviour
             player.LeftkeyPressed();
         }
 
-        if (Input.GetKeyDown(KeyCode.UpArrow))
+        if (Input.GetButtonDown("A"))
         {
             if (player.canJump)
             {
@@ -38,6 +45,18 @@ public class InputManager : MonoBehaviour
                 StartCoroutine(JumpInputBuffer());
             }
             
+        }
+    }
+
+    public float Filter(float f)
+    {
+        if(Mathf.Abs(f) < deadZone)
+        {
+            return 0f;
+        }
+        else
+        {
+            return f;
         }
     }
 
