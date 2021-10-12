@@ -134,7 +134,7 @@ GameObject:
   - component: {fileID: 88715603}
   - component: {fileID: 88715602}
   - component: {fileID: 88715601}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Right Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -265,15 +265,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 21be8a7f85ca07b4a9c7b4dc8ef78fa2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  colliderMask:
-    serializedVersion: 2
-    m_Bits: 0
   bottomLeftPoint: {x: 0, y: 0}
   bottomRightPoint: {x: 0, y: 0}
   topLeftPoint: {x: 0, y: 0}
   topRightPoint: {x: 0, y: 0}
-  numberOfRays: 10
-  distance: 0.2
+  numberOfRays: 4
+  distanceRaycast: 0.1
   xJumpFlexibility: 0.1
   yJumpFlexibility: 0.4
   jumpNumberOfRays: 20
@@ -364,7 +361,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 292331755}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -6.35, y: -3.47, z: 0}
+  m_LocalPosition: {x: -7.12, y: 1.99, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -430,7 +427,7 @@ GameObject:
   - component: {fileID: 297029644}
   - component: {fileID: 297029643}
   - component: {fileID: 297029645}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Square
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -539,7 +536,7 @@ GameObject:
   - component: {fileID: 352450495}
   - component: {fileID: 352450494}
   - component: {fileID: 352450496}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Square (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -648,7 +645,7 @@ GameObject:
   - component: {fileID: 391642113}
   - component: {fileID: 391642112}
   - component: {fileID: 391642111}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Left Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -840,7 +837,7 @@ GameObject:
   - component: {fileID: 1422403922}
   - component: {fileID: 1422403921}
   - component: {fileID: 1422403920}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Ground
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -949,7 +946,7 @@ GameObject:
   - component: {fileID: 1592761286}
   - component: {fileID: 1592761285}
   - component: {fileID: 1592761287}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Square (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1058,7 +1055,7 @@ GameObject:
   - component: {fileID: 1976084554}
   - component: {fileID: 1976084553}
   - component: {fileID: 1976084555}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Square (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
