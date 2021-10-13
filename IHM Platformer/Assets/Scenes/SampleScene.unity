@@ -361,7 +361,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 292331755}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -7.12, y: 1.99, z: 0}
+  m_LocalPosition: {x: -8.04, y: -2.54, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -394,15 +394,20 @@ MonoBehaviour:
   onWallJump: 0
   gravity: -100
   groundAcceleration: 80
-  maxXspeed: 10
+  walkSpeed: 7
+  sprintSpeed: 12
   maxYspeed: 20
-  groundDecelerationCoefficient: 0.5
-  airDecelerationCoefficient: 0.7
-  groundDeceleration: 20
-  airDeceleration: 20
+  groundProportionalDecelerationX: 0.5
+  airProportionalDecelerationX: 0.7
+  groundFlatDecelerationX: 40
+  airFlatDecelerationX: 40
   timeDivider: 0.001
-  timeDurationDash: 0.2
-  dashForce: 20
+  onDash: 0
+  timeFreezeOnDash: 0.05
+  timeInsideDash: 0.1
+  timeDecelerationAfterDash: 0.05
+  positionDisplacement: 4
+  dashSpeed: 20
   resultYForce: 0
 --- !u!114 &292331761
 MonoBehaviour:

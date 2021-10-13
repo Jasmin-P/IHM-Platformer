@@ -291,7 +291,12 @@ public class PlayerCollider : MonoBehaviour
         RaycastHit2D hitLeft = new RaycastHit2D();
         RaycastHit2D hitRight = new RaycastHit2D();
 
-        
+
+        PlayerController.instance.bottomDirectionLocked = false;
+        PlayerController.instance.topDirectionLocked = false;
+        PlayerController.instance.leftDirectionLocked = false;
+        PlayerController.instance.rightDirectionLocked = false;
+
 
         if (movement.y < 0)
         {
@@ -316,21 +321,26 @@ public class PlayerCollider : MonoBehaviour
         {
             movement.y += (-hitDown.distance + Vector2.Dot(Vector2.down, movement));
             PlayerController.instance.velocity.y = 0;
+            PlayerController.instance.bottomDirectionLocked = true;
+
         }
         else if (hitUp)
         {
             movement.y += (hitUp.distance - movement.y);
             PlayerController.instance.velocity.y = 0;
+            PlayerController.instance.topDirectionLocked = true;
         }
         if (hitLeft)
         {
             movement.x += (-hitLeft.distance - movement.x);
             PlayerController.instance.velocity.x = 0;
+            PlayerController.instance.leftDirectionLocked = true;
         }
         else if (hitRight)
         {
             movement.x += (hitLeft.distance - movement.x);
             PlayerController.instance.velocity.x = 0;
+            PlayerController.instance.rightDirectionLocked = true;
         }
 
         CanJump();

@@ -42,22 +42,32 @@ public class PlayerController : MonoBehaviour
     private float minVelocity = 0.1f;
     
     public float groundAcceleration;
-    public float maxXspeed;
+    public float walkSpeed;
+    public float sprintSpeed;
+    private float actualMaxSpeed;
     public float maxYspeed;
 
-    public float groundDecelerationCoefficient;
-    public float airDecelerationCoefficient;
-    public float groundDeceleration;
-    public float airDeceleration;
+    public float groundProportionalDecelerationX;
+    public float airProportionalDecelerationX;
+    public float groundFlatDecelerationX;
+    public float airFlatDecelerationX;
+    private float flatDecelerationX;
+    private float proportionalDecelerationX;
 
 
 
     public float timeDivider = 0.001f;
 
-    private bool onDash = false;
+    public bool onDash = false;
     private float timeStartDash;
-    public float timeDurationDash = 0.2f;
-    public float dashForce = 20f;
+
+    public float timeFreezeOnDash = 0.1f;
+    public float timeInsideDash = 0.2f;
+    public float timeDecelerationAfterDash = 0.1f;
+
+    public float positionDisplacement = 4;
+    
+    public float dashSpeed = 20f;
     
     private Vector2 dashDirection;
 
@@ -81,6 +91,7 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         position = transform.position;
+        actualMaxSpeed = walkSpeed;
         playerCollider = GetComponent<PlayerCollider>();
     }
 
@@ -98,15 +109,17 @@ public class PlayerController : MonoBehaviour
     private void UpdateVelocity()
     {
 
+        Vector2 deceleration = new Vector2(ComputeDecelerationX(), 0);
+
         // pas de gravité pendant le dash
         if (onDash)
         {
-            velocity += dashForce * dashDirection;
             UpdateDash();
         }
         else
         {
             velocity.y += gravity * Time.deltaTime;
+            
         }
 
         if (onJump)
@@ -119,19 +132,8 @@ public class PlayerController : MonoBehaviour
             velocity.y = -grabFallingSpeed;
         }
 
-        /*
-        if (onGrab)
-        {
-            if (grabDirection.x < 0 && Input.GetKey(KeyCode.Space))
-            {
-                WallJump(new Vector2(1, 0));
-            }
-        }
-        */
 
-
-        float deceleration = GroundDeceleration();
-        velocity.x += deceleration * Time.deltaTime;
+        velocity += deceleration * Time.deltaTime;
         
 
         /*
@@ -178,72 +180,66 @@ public class PlayerController : MonoBehaviour
 
     public void RightKeyPressed()
     {
-        velocity.x += groundAcceleration * Time.deltaTime;
-        Grab(new Vector2(1,0));
-
-        if (onGrab)
-        {
-            if (grabDirection.x < 0)
-            {
-                WallJump(new Vector2(1, 0));
-            }
-        }
+        MoveX(new Vector2(1, 0));
     }
 
     public void LeftkeyPressed()
     {
-        velocity.x -= groundAcceleration * Time.deltaTime;
-        Grab(new Vector2(-1, 0));
-
-
-        
+        MoveX(new Vector2(-1, 0));
     }
 
     public void MoveX(Vector2 xDirection)
     {
-        velocity.x += groundAcceleration * Mathf.Sign(xDirection.x);
-
-        Grab(xDirection);
-    }
-
-    private float GroundDeceleration()
-    {
-        if (bottomDirectionLocked)
+        float speedAugmentation = groundAcceleration * Mathf.Sign(xDirection.x) * Time.deltaTime;
+        
+        if (Mathf.Abs(speedAugmentation) > actualMaxSpeed - Mathf.Abs(velocity.x))
         {
-            //deceleration normale
-            if (velocity.x > minVelocity)
-            {
-                return -(groundDecelerationCoefficient * velocity.x * velocity.x + groundDeceleration);
-            }
-            else if (velocity.x >= -minVelocity)
-            {
-                velocity.x = 0;
-                return 0;
-            }
-            else
-            {
-                return (groundDecelerationCoefficient * velocity.x * velocity.x + groundDeceleration);
-            }
+            velocity.x = actualMaxSpeed * Mathf.Sign(xDirection.x);
         }
         else
         {
-            //deceleration dans les airs
-            if (velocity.x > minVelocity)
-            {
-                return -(airDecelerationCoefficient * velocity.x * velocity.x + airDeceleration);
-            }
-            else if (velocity.x >= -minVelocity)
-            {
-                velocity.x = 0;
-                return 0;
-            }
-            else
-            {
-                return (airDecelerationCoefficient * velocity.x * velocity.x + airDeceleration);
-            }
+            velocity.x += speedAugmentation;
         }
-        
+        Grab(xDirection);
     }
+
+    private float ComputeDecelerationX()
+    {
+        // deceleration au sol
+        if (bottomDirectionLocked)
+        {
+            flatDecelerationX = groundFlatDecelerationX;
+            proportionalDecelerationX = groundProportionalDecelerationX;
+        }
+        // deceleration dans les airs
+        else
+        {
+            flatDecelerationX = airFlatDecelerationX;
+            proportionalDecelerationX = airProportionalDecelerationX;
+        }
+
+        if (onDash)
+        {
+            return 0;
+        }
+
+
+        if (velocity.x > minVelocity)
+        {
+            return (-proportionalDecelerationX * velocity.x - flatDecelerationX);
+        }
+        else if (velocity.x >= -minVelocity)
+        {
+            velocity.x = 0;
+            return 0;
+        }
+        else
+        {
+            return (-proportionalDecelerationX * velocity.x + flatDecelerationX);
+        }
+    }
+
+
 
     // Jump
     public void Jump()
@@ -299,11 +295,12 @@ public class PlayerController : MonoBehaviour
 
 
     // pas utilisé
+    /*
     private void LimitVelocity()
     {
-        if (velocity.x > maxXspeed)
+        if (velocity.x > actualMaxSpeed)
         {
-            velocity.x = maxXspeed;
+            velocity.x = ac;
         }
         else if (velocity.x < -maxXspeed)
         {
@@ -319,20 +316,50 @@ public class PlayerController : MonoBehaviour
             velocity.y = -maxYspeed;
         }
     }
+    */
 
     public void Dash(Vector2 dashDirection)
     {
-        onDash = true;
-        this.dashDirection = dashDirection;
-        timeStartDash = Time.time;
+        if (!onDash)
+        {
+            if (dashDirection == new Vector2(0, 0))
+            {
+                dashDirection = Vector2.right;
+            }
+            onDash = true;
+            this.dashDirection = dashDirection;
+            timeStartDash = Time.time;
+        }
     }
 
     private void UpdateDash()
     {
-        if (Time.time - timeStartDash > timeDurationDash)
+        float currentTime = Time.time - timeStartDash;
+
+        if (currentTime < timeFreezeOnDash)
+        {
+            velocity = new Vector2(0, 0);
+        }
+        else if (currentTime < timeFreezeOnDash + timeInsideDash)
+        {
+            velocity = GetCurrentDashSpeed(currentTime) * dashDirection;
+        }
+
+        else if (currentTime < timeFreezeOnDash + timeInsideDash + timeDecelerationAfterDash)
+        {
+            velocity = dashDirection * actualMaxSpeed;
+        }
+
+        else
         {
             onDash = false;
         }
+    }
+
+    public float GetCurrentDashSpeed(float currentTime)
+    {
+        float currentDashSpeed = positionDisplacement / timeInsideDash;
+        return currentDashSpeed;
     }
 
     public void Grab(Vector2 direction)
@@ -357,5 +384,15 @@ public class PlayerController : MonoBehaviour
     {
         onWallJump = true;
         velocity = new Vector2(direction.x * wallJumpForce.x, wallJumpForce.y);
+    }
+
+    public void Sprint()
+    {
+        actualMaxSpeed = sprintSpeed;
+    }
+
+    public void StopSprinting()
+    {
+        actualMaxSpeed = walkSpeed;
     }
 }

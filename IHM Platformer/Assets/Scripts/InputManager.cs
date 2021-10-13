@@ -83,12 +83,12 @@ public class InputManager : MonoBehaviour
         if (Input.GetButtonDown("B"))
         {
             print("B pressed");
-            //player.Sprint();
+            player.Sprint();
         }
         if (Input.GetButtonUp("B"))
         {
             print("B released");
-            //player.StopSprinting();
+            player.StopSprinting();
         }
         
 
