@@ -254,11 +254,14 @@ public class PlayerCollider : MonoBehaviour
         if (hit)
         {
 
-            PlayerController.instance.canJump = true;
+            PlayerController.instance.ResetJumpGrab();
         }
         else
         {
-            PlayerController.instance.canJump = false;
+            if (PlayerController.instance.jumpCount == 2)
+            {
+                PlayerController.instance.jumpCount--;
+            }
         }
     }
 

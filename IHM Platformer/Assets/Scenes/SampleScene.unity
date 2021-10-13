@@ -269,7 +269,7 @@ MonoBehaviour:
   bottomRightPoint: {x: 0, y: 0}
   topLeftPoint: {x: 0, y: 0}
   topRightPoint: {x: 0, y: 0}
-  numberOfRays: 4
+  numberOfRays: 10
   distanceRaycast: 0.1
   xJumpFlexibility: 0.1
   yJumpFlexibility: 0.4
@@ -385,9 +385,10 @@ MonoBehaviour:
   topDirectionLocked: 0
   leftDirectionLocked: 0
   rightDirectionLocked: 0
-  canJump: 0
+  onSecondJump: 0
+  jumpCount: 0
   timeDurationJump: 0.2
-  jumpForce: 18
+  jumpForce: 15
   released: 0
   grabFallingSpeed: 3
   wallJumpForce: {x: 80, y: 20}
@@ -403,6 +404,7 @@ MonoBehaviour:
   airFlatDecelerationX: 40
   timeDivider: 0.001
   onDash: 0
+  canDash: 1
   timeFreezeOnDash: 0.05
   timeInsideDash: 0.1
   timeDecelerationAfterDash: 0.05

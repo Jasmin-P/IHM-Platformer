@@ -20,7 +20,8 @@ public class PlayerController : MonoBehaviour
     public bool rightDirectionLocked;
 
     // Jump
-    public bool canJump;
+    public bool onSecondJump;
+    public int jumpCount;
     private bool onJump;
     private float timeStartJump;
     public float timeDurationJump = 0.2f;
@@ -34,6 +35,8 @@ public class PlayerController : MonoBehaviour
     public float grabFallingSpeed;
     private Vector2 grabDirection;
 
+    
+    private Vector2 wallJumpDirection;
     public Vector2 wallJumpForce;
     public bool onWallJump;
 
@@ -59,6 +62,7 @@ public class PlayerController : MonoBehaviour
     public float timeDivider = 0.001f;
 
     public bool onDash = false;
+    public bool canDash = true;
     private float timeStartDash;
 
     public float timeFreezeOnDash = 0.1f;
@@ -125,6 +129,14 @@ public class PlayerController : MonoBehaviour
         if (onJump)
         {
             UpdateJump();
+        }
+        else if (onSecondJump)
+        {
+            UpdateSecondJump();
+        }
+        else if (onWallJump)
+        {
+            UpdateWallJump();
         }
 
         if (onGrab)
@@ -239,16 +251,24 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-
+    public void ResetJumpGrab()
+    {
+        jumpCount = 2;
+        if (!onDash)
+        {
+            canDash = true;
+        }
+    }
 
     // Jump
     public void Jump()
     {
-        if (canJump)
+        if (jumpCount == 2)
         {
             velocity.y = jumpForce;
             variableJumpForce = jumpForce;
             onJump = true;
+            jumpCount--;
             timeStartJump = Time.time;
         }
 
@@ -256,15 +276,35 @@ public class PlayerController : MonoBehaviour
         {
             if (grabDirection.x >= 0)
             {
-                WallJump(new Vector2(-1, 0));
+                wallJumpDirection = new Vector2(-1, 0);
             }
             else
             {
-                WallJump(new Vector2(1, 0));
+                wallJumpDirection = new Vector2(1, 0);
             }
+            onWallJump = true;
+            timeStartJump = Time.time;
         }
 
-        
+        else if (jumpCount == 1)
+        {
+            jumpCount--;
+            onJump = false;
+            onSecondJump = true;
+            timeStartJump = Time.time;
+        }
+    }
+
+    private void UpdateSecondJump()
+    {
+        if (Time.time - timeStartJump > timeDurationJump)
+        {
+            onSecondJump = false;
+        }
+        else
+        {
+            velocity.y = jumpForce * 0.7f;
+        }
     }
 
     public void JumpRelease()
@@ -292,6 +332,17 @@ public class PlayerController : MonoBehaviour
         previousTimeJump = Time.time;
     }
 
+    public void UpdateWallJump()
+    {
+        if (Time.time - timeStartJump > timeDurationJump)
+        {
+            onWallJump = false;
+        }
+        else
+        {
+            velocity = new Vector2(wallJumpDirection.x * wallJumpForce.x, wallJumpForce.y);
+        }
+    }
 
 
     // pas utilisé
@@ -320,13 +371,14 @@ public class PlayerController : MonoBehaviour
 
     public void Dash(Vector2 dashDirection)
     {
-        if (!onDash)
+        if (canDash)
         {
             if (dashDirection == new Vector2(0, 0))
             {
                 dashDirection = Vector2.right;
             }
             onDash = true;
+            canDash = false;
             this.dashDirection = dashDirection;
             timeStartDash = Time.time;
         }
@@ -380,11 +432,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public void WallJump(Vector2 direction)
-    {
-        onWallJump = true;
-        velocity = new Vector2(direction.x * wallJumpForce.x, wallJumpForce.y);
-    }
+    
 
     public void Sprint()
     {

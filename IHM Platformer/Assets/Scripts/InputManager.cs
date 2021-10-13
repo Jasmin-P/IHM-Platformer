@@ -66,7 +66,7 @@ public class InputManager : MonoBehaviour
 
         if (Input.GetButtonDown("A"))
         {
-            if (player.canJump)
+            if (player.jumpCount > 0)
             {
                 player.Jump();
             }
@@ -113,7 +113,7 @@ public class InputManager : MonoBehaviour
         bool end = false;
         while(j > 0 && !end)
         {
-            if (player.canJump)
+            if (player.jumpCount > 0)
             {
                 player.Jump();
                 end = true;
