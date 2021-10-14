@@ -246,6 +246,8 @@ GameObject:
   - component: {fileID: 292331756}
   - component: {fileID: 292331760}
   - component: {fileID: 292331761}
+  - component: {fileID: 292331762}
+  - component: {fileID: 292331763}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -269,7 +271,7 @@ MonoBehaviour:
   bottomRightPoint: {x: 0, y: 0}
   topLeftPoint: {x: 0, y: 0}
   topRightPoint: {x: 0, y: 0}
-  numberOfRays: 10
+  numberOfRays: 20
   distanceRaycast: 0.1
   xJumpFlexibility: 0.1
   yJumpFlexibility: 0.4
@@ -385,18 +387,16 @@ MonoBehaviour:
   topDirectionLocked: 0
   leftDirectionLocked: 0
   rightDirectionLocked: 0
-  onSecondJump: 0
   jumpCount: 0
-  timeDurationJump: 0.2
-  jumpForce: 15
-  released: 0
+  onJump: 0
+  onGrab: 0
   grabFallingSpeed: 3
-  wallJumpForce: {x: 80, y: 20}
-  onWallJump: 0
+  grabDirection: {x: 0, y: 0}
   gravity: -100
   groundAcceleration: 80
   walkSpeed: 7
   sprintSpeed: 12
+  actualMaxSpeed: 0
   maxYspeed: 20
   groundProportionalDecelerationX: 0.5
   airProportionalDecelerationX: 0.7
@@ -405,12 +405,6 @@ MonoBehaviour:
   timeDivider: 0.001
   onDash: 0
   canDash: 1
-  timeFreezeOnDash: 0.05
-  timeInsideDash: 0.1
-  timeDecelerationAfterDash: 0.05
-  positionDisplacement: 4
-  dashSpeed: 20
-  resultYForce: 0
 --- !u!114 &292331761
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -424,6 +418,38 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   deadZone: 0.5
+--- !u!114 &292331762
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 292331755}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f728bce5a2f3834a8a0500442611fd0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  positionDisplacement: 4
+  timeFreezeOnDash: 0.05
+  timeInsideDash: 0.1
+  timeDecelerationAfterDash: 0.05
+--- !u!114 &292331763
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 292331755}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1dc79a4be77da4409f4fbeadcc9e8fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  jumpForce: 15
+  wallJumpDirection: {x: 0, y: 0}
+  wallJumpForce: {x: 10, y: 10}
+  timeDurationJump: 0.2
 --- !u!1 &297029642
 GameObject:
   m_ObjectHideFlags: 0

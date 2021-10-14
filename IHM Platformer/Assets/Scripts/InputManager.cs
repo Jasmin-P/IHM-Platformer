@@ -66,15 +66,7 @@ public class InputManager : MonoBehaviour
 
         if (Input.GetButtonDown("A"))
         {
-            if (player.jumpCount > 0)
-            {
-                player.Jump();
-            }
-            else
-            {
-                StartCoroutine(JumpInputBuffer());
-            }
-            
+            player.Jump();
         }
         if (Input.GetButtonDown("X"))
         {

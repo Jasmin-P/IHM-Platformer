@@ -6,7 +6,6 @@ public class PlayerCollider : MonoBehaviour
 {
 
     Collider2D playerCollider;
-    PlayerController playerController;
     Bounds bounds;
 
     public Vector2 bottomLeftPoint;
@@ -17,6 +16,8 @@ public class PlayerCollider : MonoBehaviour
     public int numberOfRays = 3;
     public float distanceRaycast = 0.1f;
 
+
+    private float diagonalHitMovement = 0.01f;
 
     public float xJumpFlexibility = 0.1f;
     public float yJumpFlexibility = 0.5f;
@@ -33,34 +34,17 @@ public class PlayerCollider : MonoBehaviour
     void Start()
     {
         playerCollider = GetComponent<Collider2D>();
-        //playerController = GetComponent<PlayerController>();
 
         UpdateBounds();
 
         mask = LayerMask.GetMask("Wall");
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        /*
-        UpdateBounds();
-        LeftCollision(distance);
-        RightCollision(distance);
-        TopCollision(distance);
-        BottomCollision(distance);
-        DiagonalsLeftCollision(distance);
-        DiagonalsRightCollision(distance);
-        CanJump();
-        */
-    }
-
-
 
     private void UpdateBounds()
     {
         bounds = playerCollider.bounds;
-        //bounds.Expand(collisionDistance);
+        bounds.Expand(-collisionDistance);
         bottomLeftPoint = new Vector2(bounds.min.x, bounds.min.y);
         bottomRightPoint = new Vector2(bounds.max.x, bounds.min.y);
         topLeftPoint = new Vector2(bounds.min.x, bounds.max.y);
@@ -72,86 +56,6 @@ public class PlayerCollider : MonoBehaviour
             Debug.DrawLine(bottomRightPoint, topRightPoint, Color.blue, 0.1f);
             Debug.DrawLine(topRightPoint, topLeftPoint, Color.blue, 0.1f);
             Debug.DrawLine(topLeftPoint, bottomLeftPoint, Color.blue, 0.1f);
-        }
-    }
-
-    private void LeftCollision(float length)
-    {
-        if (PlayerController.instance.velocity.x <= 0)
-        {
-            RaycastHit2D hit = DetectCollision(topLeftPoint, bottomLeftPoint, Vector2.left, length, numberOfRays);
-            if (hit)
-            {
-                if (!playerController.leftDirectionLocked)
-                {
-                    playerController.Move(Vector2.left * hit.distance);
-                    playerController.leftDirectionLocked = true;
-                }
-            }
-            else
-            {
-                playerController.leftDirectionLocked = false;
-            }
-        }
-    }
-
-    private void RightCollision(float length)
-    {
-        if (PlayerController.instance.velocity.x >= 0)
-        {
-            RaycastHit2D hit = DetectCollision(bottomRightPoint, topRightPoint, Vector2.right, length, numberOfRays);
-            if (hit)
-            {
-                if (!playerController.rightDirectionLocked)
-                {
-                    playerController.Move(Vector2.right * hit.distance);
-                    playerController.rightDirectionLocked = true;
-                }
-            }
-            else
-            {
-                playerController.rightDirectionLocked = false;
-            }
-        }
-    }
-
-    private void BottomCollision(float length)
-    {
-        if (PlayerController.instance.velocity.y <= 0)
-        {
-            RaycastHit2D hit = DetectCollision(bottomLeftPoint, bottomRightPoint, -Vector2.up, length, numberOfRays);
-            if (hit)
-            {
-                if (!playerController.bottomDirectionLocked)
-                {
-                    playerController.Move(-Vector2.up * hit.distance);
-                    playerController.bottomDirectionLocked = true;
-                }
-            }
-            else
-            {
-                playerController.bottomDirectionLocked = false;
-            }
-        }
-    }
-
-    private void TopCollision(float length)
-    {
-        if (PlayerController.instance.velocity.y >= 0)
-        {
-            RaycastHit2D hit = DetectCollision(topRightPoint, topLeftPoint, Vector2.up, length, numberOfRays);
-            if (hit)
-            {
-                if (!playerController.topDirectionLocked)
-                {
-                    playerController.Move(Vector2.up * hit.distance);
-                    playerController.topDirectionLocked = true;
-                }
-            }
-            else
-            {
-                playerController.topDirectionLocked = false;
-            }
         }
     }
 
@@ -177,7 +81,7 @@ public class PlayerCollider : MonoBehaviour
                 }
                 i--;
             }
-            playerController.Move(new Vector2(0,1) * (distanceRaycast * i)/24);
+            PlayerController.instance.Move(new Vector2(0,1) * (distanceRaycast * i)/24);
         }
     }
     private void DiagonalsLeftCollision(float length) 
@@ -202,7 +106,7 @@ public class PlayerCollider : MonoBehaviour
                 }
                 i--;
             }
-            playerController.Move(new Vector2(0, 1) * (distanceRaycast * i)/24);
+            PlayerController.instance.Move(new Vector2(0, 1) * (distanceRaycast * i)/24);
         }
     }
 
@@ -211,12 +115,13 @@ public class PlayerCollider : MonoBehaviour
     {
         float x = startPoint.x;
         float y = startPoint.y;
+
+
         RaycastHit2D hit = new RaycastHit2D();
         for (int i = 0; i < rayNumber; i++)
         {
             x += (endPoint.x - startPoint.x) / (rayNumber + 1);
             y += (endPoint.y - startPoint.y) / (rayNumber + 1);
-
 
             RayInfo ray;
             ray.origin = new Vector2(x, y);
@@ -228,8 +133,18 @@ public class PlayerCollider : MonoBehaviour
             {
                 return hit;
             }
-            
         }
+
+        return hit;
+    }
+
+    private RaycastHit2D DetectCollision(Vector2 origin, Vector2 direction, float rayDistance)
+    {
+        RayInfo ray;
+        ray.origin = origin;
+        ray.direction = direction;
+        ray.distance = rayDistance;
+        RaycastHit2D hit = Raycast(ray);
 
         return hit;
     }
@@ -240,21 +155,13 @@ public class PlayerCollider : MonoBehaviour
         Vector2 startPoint = bottomLeftPoint;
         Vector2 endPoint = bottomRightPoint;
 
-        if (!PlayerController.instance.leftDirectionLocked)
-        {
-            startPoint.x -= xJumpFlexibility;
-        }
-        if (!PlayerController.instance.rightDirectionLocked)
-        {
-            endPoint.x += xJumpFlexibility;
-        }
         RaycastHit2D hit = DetectCollision(startPoint, endPoint, -Vector2.up, yJumpFlexibility, jumpNumberOfRays);
 
 
         if (hit)
         {
 
-            PlayerController.instance.ResetJumpGrab();
+            PlayerController.instance.GroundTouched();
         }
         else
         {
@@ -295,30 +202,29 @@ public class PlayerCollider : MonoBehaviour
         RaycastHit2D hitRight = new RaycastHit2D();
 
 
-        PlayerController.instance.bottomDirectionLocked = false;
-        PlayerController.instance.topDirectionLocked = false;
-        PlayerController.instance.leftDirectionLocked = false;
-        PlayerController.instance.rightDirectionLocked = false;
-
-
         if (movement.y < 0)
         {
+            PlayerController.instance.bottomDirectionLocked = false;
             hitDown = DetectCollision(bottomLeftPoint, bottomRightPoint, Vector2.down, Vector2.Dot(Vector2.down, movement), numberOfRays);
-            
         }
         else
         {
+            PlayerController.instance.topDirectionLocked = false;
             hitUp = DetectCollision(topRightPoint, topLeftPoint, Vector2.up, movement.y, numberOfRays);
         }
 
         if (movement.x < 0)
         {
+            PlayerController.instance.leftDirectionLocked = false;
             hitLeft = DetectCollision(bottomLeftPoint, topLeftPoint, Vector2.left, -movement.x, numberOfRays);
         }
         else
         {
+            PlayerController.instance.rightDirectionLocked = false;
             hitRight = DetectCollision(bottomRightPoint, topRightPoint, Vector2.right, movement.x, numberOfRays);
         }
+
+
 
         if (hitDown)
         {
@@ -348,6 +254,71 @@ public class PlayerCollider : MonoBehaviour
 
         CanJump();
 
+        if (!(hitDown || hitLeft || hitRight || hitUp))
+        {
+            UpdateDiagonalCollisions(ref movement);
+        }
+        
     }
-    
+
+    public void UpdateDiagonalCollisions(ref Vector2 movement)
+    {
+        RaycastHit2D hit;
+        Vector2 direction = movement.normalized;
+        float length = movement.magnitude;
+        bool left = movement.x < 0;
+        bool down = movement.y < 0;
+
+        if (left){
+            if (down)
+            {
+                hit = DetectCollision(bottomLeftPoint, direction, length);
+            }
+            else
+            {
+                hit = DetectCollision(topLeftPoint, direction, length);
+            }
+        }
+        else
+        {
+            if (movement.y < 0)
+            {
+                hit = DetectCollision(bottomRightPoint, direction, length);
+            }
+            else
+            {
+                hit = DetectCollision(topRightPoint, direction, length);
+            }
+        }
+
+        if (hit)
+        {
+
+
+            movement += (hit.distance - length) * direction;
+            PlayerController.instance.velocity.y = 0;
+            PlayerController.instance.velocity.x = 0;
+
+
+            if (down)
+            {
+                Bounds hitBounds = hit.collider.bounds;
+
+                Vector2 newPos;
+
+                if (left)
+                {
+                    newPos = new Vector2(bounds.min.x + diagonalHitMovement, bounds.max.y);
+                }
+                else
+                {
+                    newPos = new Vector2(bounds.max.x - diagonalHitMovement, bounds.max.y);
+                }
+
+                movement = newPos - new Vector2(PlayerController.instance.transform.position.x, PlayerController.instance.transform.position.y);
+            }
+            
+
+        }
+    }
 }

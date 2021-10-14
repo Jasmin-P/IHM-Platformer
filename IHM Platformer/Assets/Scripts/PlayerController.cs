@@ -5,40 +5,34 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
 
+    public static PlayerController instance;
+
+    private PlayerCollider playerCollider;
+    private Dash dashManager;
+    private Jump jumpManager;
+    
+
+
     public Vector2 position;
     private Vector2 lastPosition;
     public Vector2 velocity;
 
-    public static PlayerController instance;
-
-    private PlayerCollider playerCollider;
     
-
     public bool bottomDirectionLocked;
     public bool topDirectionLocked;
     public bool leftDirectionLocked;
     public bool rightDirectionLocked;
 
     // Jump
-    public bool onSecondJump;
     public int jumpCount;
-    private bool onJump;
-    private float timeStartJump;
-    public float timeDurationJump = 0.2f;
-    private float previousTimeJump;
-    public float jumpForce = 250f;
-    private float variableJumpForce;
-    public bool released = false;
+    public bool onJump;
+
 
     // grab
-    private bool onGrab;
+    public bool onGrab;
     public float grabFallingSpeed;
-    private Vector2 grabDirection;
+    public Vector2 grabDirection;
 
-    
-    private Vector2 wallJumpDirection;
-    public Vector2 wallJumpForce;
-    public bool onWallJump;
 
     public float gravity = -100f;
 
@@ -47,7 +41,7 @@ public class PlayerController : MonoBehaviour
     public float groundAcceleration;
     public float walkSpeed;
     public float sprintSpeed;
-    private float actualMaxSpeed;
+    public float actualMaxSpeed;
     public float maxYspeed;
 
     public float groundProportionalDecelerationX;
@@ -63,19 +57,7 @@ public class PlayerController : MonoBehaviour
 
     public bool onDash = false;
     public bool canDash = true;
-    private float timeStartDash;
 
-    public float timeFreezeOnDash = 0.1f;
-    public float timeInsideDash = 0.2f;
-    public float timeDecelerationAfterDash = 0.1f;
-
-    public float positionDisplacement = 4;
-    
-    public float dashSpeed = 20f;
-    
-    private Vector2 dashDirection;
-
-    public float resultYForce;
 
     int i = 0;
 
@@ -97,6 +79,8 @@ public class PlayerController : MonoBehaviour
         position = transform.position;
         actualMaxSpeed = walkSpeed;
         playerCollider = GetComponent<PlayerCollider>();
+        dashManager = GetComponent<Dash>();
+        jumpManager = GetComponent<Jump>();
     }
 
     // Update is called once per frame
@@ -118,7 +102,7 @@ public class PlayerController : MonoBehaviour
         // pas de gravité pendant le dash
         if (onDash)
         {
-            UpdateDash();
+            dashManager.UpdateDash();
         }
         else
         {
@@ -128,8 +112,9 @@ public class PlayerController : MonoBehaviour
 
         if (onJump)
         {
-            UpdateJump();
+            jumpManager.UpdateJump();
         }
+        /*
         else if (onSecondJump)
         {
             UpdateSecondJump();
@@ -138,6 +123,7 @@ public class PlayerController : MonoBehaviour
         {
             UpdateWallJump();
         }
+        */
 
         if (onGrab)
         {
@@ -173,15 +159,13 @@ public class PlayerController : MonoBehaviour
     {
         position += velocity * Time.deltaTime;
 
-        Vector2 movement = position - new Vector2(lastPosition.x, lastPosition.y);
+        Vector2 movement = position - new Vector2(transform.position.x, transform.position.y);
 
         playerCollider.UpdateCollisions(ref movement);
 
-        position = new Vector2(lastPosition.x + movement.x, lastPosition.y + movement.y);
+        position = new Vector2(transform.position.x + movement.x, transform.position.y + movement.y);
 
-        lastPosition = position;
         transform.position = position;
-
     }
 
     public void Move(Vector2 translatePosition)
@@ -251,7 +235,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public void ResetJumpGrab()
+    public void GroundTouched()
     {
         jumpCount = 2;
         if (!onDash)
@@ -260,159 +244,29 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    // Jump
+    // JumpButtonPressed
     public void Jump()
     {
-        if (jumpCount == 2)
-        {
-            velocity.y = jumpForce;
-            variableJumpForce = jumpForce;
-            onJump = true;
-            jumpCount--;
-            timeStartJump = Time.time;
-        }
-
-        else if (onGrab)
-        {
-            if (grabDirection.x >= 0)
-            {
-                wallJumpDirection = new Vector2(-1, 0);
-            }
-            else
-            {
-                wallJumpDirection = new Vector2(1, 0);
-            }
-            onWallJump = true;
-            timeStartJump = Time.time;
-        }
-
-        else if (jumpCount == 1)
-        {
-            jumpCount--;
-            onJump = false;
-            onSecondJump = true;
-            timeStartJump = Time.time;
-        }
+        jumpManager.StartJump(jumpCount);
     }
 
-    private void UpdateSecondJump()
-    {
-        if (Time.time - timeStartJump > timeDurationJump)
-        {
-            onSecondJump = false;
-        }
-        else
-        {
-            velocity.y = jumpForce * 0.7f;
-        }
-    }
-
+    // JumpButtonReleased
     public void JumpRelease()
     {
-        released = true;
+        jumpManager.JumpRelease();
     }
 
-    private void UpdateJump()
-    {
-        if (Time.time - timeStartJump > timeDurationJump)
-        {
-            onJump = false;
-            released = false;
-        }
-        else
-        {
-              velocity.y = variableJumpForce;
-        }
-
-        if (released && Time.time - timeStartJump > timeDurationJump * 0.5f)
-        {
-            variableJumpForce = jumpForce * 0.5f;
-        }
-
-        previousTimeJump = Time.time;
-    }
-
-    public void UpdateWallJump()
-    {
-        if (Time.time - timeStartJump > timeDurationJump)
-        {
-            onWallJump = false;
-        }
-        else
-        {
-            velocity = new Vector2(wallJumpDirection.x * wallJumpForce.x, wallJumpForce.y);
-        }
-    }
-
-
-    // pas utilisé
-    /*
-    private void LimitVelocity()
-    {
-        if (velocity.x > actualMaxSpeed)
-        {
-            velocity.x = ac;
-        }
-        else if (velocity.x < -maxXspeed)
-        {
-            velocity.x = -maxXspeed;
-        }
-
-        if (velocity.y > maxYspeed)
-        {
-            velocity.y = maxYspeed;
-        }
-        else if (velocity.y < -maxYspeed)
-        {
-            velocity.y = -maxYspeed;
-        }
-    }
-    */
-
+    // DashButtonPressed
     public void Dash(Vector2 dashDirection)
     {
         if (canDash)
         {
-            if (dashDirection == new Vector2(0, 0))
-            {
-                dashDirection = Vector2.right;
-            }
-            onDash = true;
+            dashManager.StartDash(dashDirection);
             canDash = false;
-            this.dashDirection = dashDirection;
-            timeStartDash = Time.time;
+            onDash = true;
         }
     }
 
-    private void UpdateDash()
-    {
-        float currentTime = Time.time - timeStartDash;
-
-        if (currentTime < timeFreezeOnDash)
-        {
-            velocity = new Vector2(0, 0);
-        }
-        else if (currentTime < timeFreezeOnDash + timeInsideDash)
-        {
-            velocity = GetCurrentDashSpeed(currentTime) * dashDirection;
-        }
-
-        else if (currentTime < timeFreezeOnDash + timeInsideDash + timeDecelerationAfterDash)
-        {
-            velocity = dashDirection * actualMaxSpeed;
-        }
-
-        else
-        {
-            onDash = false;
-        }
-    }
-
-    public float GetCurrentDashSpeed(float currentTime)
-    {
-        float currentDashSpeed = positionDisplacement / timeInsideDash;
-        return currentDashSpeed;
-    }
 
     public void Grab(Vector2 direction)
     {
