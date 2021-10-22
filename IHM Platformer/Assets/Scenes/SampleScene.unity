@@ -401,7 +401,7 @@ MonoBehaviour:
   groundProportionalDecelerationX: 0.5
   airProportionalDecelerationX: 0.7
   groundFlatDecelerationX: 40
-  airFlatDecelerationX: 40
+  airFlatDecelerationX: 70
   timeDivider: 0.001
   onDash: 0
   canDash: 1
