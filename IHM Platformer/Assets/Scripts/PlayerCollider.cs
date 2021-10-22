@@ -196,11 +196,34 @@ public class PlayerCollider : MonoBehaviour
 
         UpdateBounds();
 
+        RaycastHit2D hitMovingPlatformDown = new RaycastHit2D();
+        RaycastHit2D hitMovingPlatformLeft = new RaycastHit2D();
+        RaycastHit2D hitMovingPlatformRight = new RaycastHit2D();
         RaycastHit2D hitDown = new RaycastHit2D();
         RaycastHit2D hitUp = new RaycastHit2D();
         RaycastHit2D hitLeft = new RaycastHit2D();
         RaycastHit2D hitRight = new RaycastHit2D();
 
+        hitMovingPlatformDown = DetectCollision(bottomLeftPoint, bottomRightPoint, Vector2.down, Vector2.Dot(Vector2.down, movement), numberOfRays);
+        hitMovingPlatformLeft = DetectCollision(bottomLeftPoint, topLeftPoint, Vector2.left, -movement.x, numberOfRays);
+        hitMovingPlatformRight = DetectCollision(bottomRightPoint, topRightPoint, Vector2.right, movement.x, numberOfRays);
+
+        if (hitMovingPlatformDown && hitMovingPlatformDown.collider.CompareTag("MovingPlatform")) 
+        {
+            Debug.Log("moving on !");
+            float movementX = hitMovingPlatformDown.collider.GetComponent<MovingPlatform>().movement.x;
+            float movementY = hitMovingPlatformDown.collider.GetComponent<MovingPlatform>().movement.y;
+            movement.x += movementX;
+            movement.y += movementY;
+        }
+        if (hitMovingPlatformLeft && hitMovingPlatformLeft.collider.CompareTag("MovingPlatform"))
+        {
+        }
+        //if (hitMovingPlatformRight && hitMovingPlatformRight.collider.CompareTag("MovingPlatform"))
+        //{
+        //    movement.x += Vector2.Dot(movement, Vector2.left);
+        //    movement.y += Vector2.Dot(movement, Vector2.down);
+        //}
 
         if (movement.y < 0)
         {
@@ -229,6 +252,7 @@ public class PlayerCollider : MonoBehaviour
         if (hitDown)
         {
             movement.y += (-hitDown.distance + Vector2.Dot(Vector2.down, movement));
+            
             PlayerController.instance.velocity.y = 0;
             PlayerController.instance.bottomDirectionLocked = true;
 
@@ -241,6 +265,7 @@ public class PlayerCollider : MonoBehaviour
         }
         if (hitLeft)
         {
+            Debug.Log("hit!");
             movement.x += (-hitLeft.distance - movement.x);
             PlayerController.instance.velocity.x = 0;
             PlayerController.instance.leftDirectionLocked = true;
