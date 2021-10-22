@@ -10,13 +10,14 @@ public class PlayerController : MonoBehaviour
     private PlayerCollider playerCollider;
     private Dash dashManager;
     private Jump jumpManager;
-    
 
+    //Feedback
+    public SpriteRenderer spriteRenderer;
 
     public Vector2 position;
     private Vector2 lastPosition;
     public Vector2 velocity;
-
+    public Vector2 velocity_n;
     
     public bool bottomDirectionLocked;
     public bool topDirectionLocked;
@@ -81,6 +82,8 @@ public class PlayerController : MonoBehaviour
         playerCollider = GetComponent<PlayerCollider>();
         dashManager = GetComponent<Dash>();
         jumpManager = GetComponent<Jump>();
+
+        spriteRenderer.drawMode = SpriteDrawMode.Sliced;
     }
 
     // Update is called once per frame
@@ -89,8 +92,32 @@ public class PlayerController : MonoBehaviour
  
         UpdateVelocity();
         UpdatePosition();
+
+        if (canDash)
+        {
+            spriteRenderer.color = Color.green;
+        }
+        else
+        {
+            spriteRenderer.color = Color.red;
+        }
         
+        float velocity_sqrMagnitude = velocity.sqrMagnitude;
+        velocity_n = velocity.normalized;
+        
+        if (velocity_sqrMagnitude > 1f) //dès qu'on bouge
+        {
+            spriteRenderer.size = new Vector2(1 + 0.2f * (2 * velocity_n.x * velocity_n.x - 1), 1 + 0.2f * (2 * velocity_n.y * velocity_n.y - 1));
+        }
+        else //On bouge pas
+        {
+            spriteRenderer.size = new Vector2(1f, 1f);
+        }
+        
+
     }
+
+    
 
     
 
@@ -107,7 +134,6 @@ public class PlayerController : MonoBehaviour
         else
         {
             velocity.y += gravity * Time.deltaTime;
-            
         }
 
         if (onJump)
