@@ -17,7 +17,7 @@ public class PlayerCollider : MonoBehaviour
     public float distanceRaycast = 0.1f;
 
 
-    private float diagonalHitMovement = 0.01f;
+    private float diagonalHitMovement = 0.001f;
 
     public float xJumpFlexibility = 0.1f;
     public float yJumpFlexibility = 0.5f;
