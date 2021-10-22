@@ -389,6 +389,7 @@ MonoBehaviour:
   rightDirectionLocked: 0
   jumpCount: 0
   onJump: 0
+  timeBufferJump: 0.05
   onGrab: 0
   grabFallingSpeed: 3
   grabDirection: {x: 0, y: 0}
