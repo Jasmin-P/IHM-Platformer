@@ -27,6 +27,9 @@ public class PlayerController : MonoBehaviour
     // Jump
     public int jumpCount;
     public bool onJump;
+    private bool jumpPushed;
+    private float timeJumpPushed;
+    public float timeBufferJump;
 
 
     // grab
@@ -134,6 +137,10 @@ public class PlayerController : MonoBehaviour
         else
         {
             velocity.y += gravity * Time.deltaTime;
+        }
+        if (jumpPushed)
+        {
+            Jump();
         }
 
         if (onJump)
@@ -273,7 +280,23 @@ public class PlayerController : MonoBehaviour
     // JumpButtonPressed
     public void Jump()
     {
-        jumpManager.StartJump(jumpCount);
+        if (jumpManager.StartJump(jumpCount))
+        {
+            jumpPushed = false;
+        }
+        else
+        {
+            if (!jumpPushed)
+            {
+                jumpPushed = true;
+                timeJumpPushed = Time.time;
+            }
+        }
+
+        if (Time.time - timeJumpPushed > timeBufferJump)
+        {
+            jumpPushed = false;
+        }
     }
 
     // JumpButtonReleased

@@ -32,24 +32,28 @@ public class Jump : MonoBehaviour
 
 
     // Appelé lorsque la touche de jump est préssée. Decide du jump à faire et le lance.
-    public void StartJump(float playerControllerJumpCount)
+    public bool StartJump(float playerControllerJumpCount)
     {
         jumpCount = playerControllerJumpCount;
 
         if (jumpCount == 2)
         {
             StartFirstJump();
+            return true;
         }
 
         else if (PlayerController.instance.onGrab)
         {
             StartWallJump();
+            return true;
         }
 
         else if (jumpCount == 1)
         {
             StartSecondJump();
+            return true;
         }
+        return false;
     }
 
     // Appelé à chaque frame par le playerController pendant un jump (onJump). Lance un Update du jump actuel.
