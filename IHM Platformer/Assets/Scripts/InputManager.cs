@@ -9,6 +9,8 @@ public class InputManager : MonoBehaviour
     private Vector2 direction_raw;
     private Vector2 direction;
 
+    
+
     public float deadZone;
 
 
@@ -31,6 +33,36 @@ public class InputManager : MonoBehaviour
         else if (direction.x < 0)
         {
             player.LeftkeyPressed();
+        }
+
+
+
+        player.Grab(direction);
+
+
+        if (Filter(Input.GetAxis("Dash")) > 0.5f || Input.GetButtonDown("X"))
+        {
+            Vector2 dashDirection = new Vector2(direction.x, direction.y);
+
+            if (Mathf.Abs(dashDirection.x) > 0.5)
+            {
+                dashDirection.x = Mathf.Sign(dashDirection.x);
+            }
+            else
+            {
+                dashDirection.x = 0;
+            }
+
+            if (Mathf.Abs(dashDirection.y) > 0.5)
+            {
+                dashDirection.y = Mathf.Sign(dashDirection.y);
+            }
+            else
+            {
+                dashDirection.y = 0;
+            }
+
+            player.Dash(dashDirection.normalized);
         }
 
 
@@ -68,10 +100,18 @@ public class InputManager : MonoBehaviour
         {
             player.Jump();
         }
+        if (Input.GetButtonUp("A"))
+        {
+            player.JumpRelease();
+        }
+
+        /*
         if (Input.GetButtonDown("X"))
         {
             player.Dash(direction);
         }
+        */
+
         if (Input.GetButtonDown("B"))
         {
             print("B pressed");
