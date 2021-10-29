@@ -122,6 +122,11 @@ public class InputManager : MonoBehaviour
             print("B released");
             player.StopSprinting();
         }
+        if (Input.GetButtonDown("Plus"))
+        {
+            PauseController.Instance.Pause();
+            Debug.Log("Pause!");
+        }
         
 
     }

@@ -9,6 +9,7 @@ public class PauseController : MonoBehaviour
     private PauseController(){}
     public static PauseController Instance { get; private set; }
     bool onPause = false;
+    [SerializeField]
     GameObject PauseMenu;
     
     private void Awake()
@@ -26,11 +27,13 @@ public class PauseController : MonoBehaviour
         {
             Time.timeScale = 0;
             PauseMenu.SetActive(true);
+            onPause = true;
         }
         else
         {
             Time.timeScale = 1;
             PauseMenu.SetActive(false);
+            onPause = false;
         }
         
     }

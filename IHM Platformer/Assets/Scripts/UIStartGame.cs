@@ -16,6 +16,6 @@ public class UIStartGame : MonoBehaviour
 
     void startGame()
     {
-        SceneManager.LoadScene("Game");
+        SceneManager.LoadScene("SampleScene 1");
     }
 }
