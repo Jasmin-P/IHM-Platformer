@@ -17,7 +17,7 @@ public class PlayerCollider : MonoBehaviour
     public float distanceRaycast = 0.1f;
 
 
-    private float diagonalHitMovement = 0.001f;
+    private float diagonalHitMovement = 0.05f;
 
     public float xJumpFlexibility = 0.1f;
     public float yJumpFlexibility = 0.5f;
@@ -327,17 +327,18 @@ public class PlayerCollider : MonoBehaviour
 
             if (down)
             {
+                float playerHalfLength = bounds.size.x * 0.5f;
                 Bounds hitBounds = hit.collider.bounds;
 
                 Vector2 newPos;
 
-                if (left)
+                if (!left)
                 {
-                    newPos = new Vector2(bounds.min.x + diagonalHitMovement, bounds.max.y);
+                    newPos = new Vector2(hitBounds.min.x + diagonalHitMovement - playerHalfLength, hitBounds.max.y + playerHalfLength);
                 }
                 else
                 {
-                    newPos = new Vector2(bounds.max.x - diagonalHitMovement, bounds.max.y);
+                    newPos = new Vector2(hitBounds.max.x - diagonalHitMovement + playerHalfLength, hitBounds.max.y + playerHalfLength);
                 }
 
                 movement = newPos - new Vector2(PlayerController.instance.transform.position.x, PlayerController.instance.transform.position.y);
