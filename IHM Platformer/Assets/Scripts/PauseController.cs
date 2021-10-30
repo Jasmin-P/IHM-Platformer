@@ -2,15 +2,22 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class PauseController : MonoBehaviour
 {
     private static PauseController instance;
     private PauseController(){}
     public static PauseController Instance { get; private set; }
-    bool onPause = false;
+    public bool onPause = false;
     [SerializeField]
     GameObject PauseMenu;
+    [SerializeField]
+    GameObject instructions;
+    [SerializeField]
+    GameObject menuButton;
+    [SerializeField]
+    GameObject instructionsButton;
     
     private void Awake()
     {
@@ -36,5 +43,17 @@ public class PauseController : MonoBehaviour
             onPause = false;
         }
         
+    }
+
+    public void returnToMenu()
+    {
+        SceneManager.LoadScene("Menu");
+    }
+
+    public void showInstructions()
+    {
+        instructions.SetActive(!instructions.activeSelf);
+        menuButton.SetActive(!menuButton.activeSelf);
+        instructionsButton.SetActive(!instructionsButton.activeSelf);
     }
 }

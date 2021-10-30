@@ -16,6 +16,8 @@ public class UIMenuButton : MonoBehaviour
 
     void returnToMenu()
     {
+        
         SceneManager.LoadScene("Menu");
+
     }
 }

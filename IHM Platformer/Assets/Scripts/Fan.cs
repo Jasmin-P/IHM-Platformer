@@ -28,13 +28,14 @@ public class Fan : MonoBehaviour
     private void CheckPlayer()
     {
         Debug.Log("oui");
-        RaycastHit2D hit = DetectCollision(transform.position, new Vector2(transform.position.x, transform.position.y + fanHeight), Vector2.up, fanHeight, numberOfRays);
+        RaycastHit2D hit = DetectCollision(new Vector2(transform.position.x - 1, transform.position.y + 0.6f), new Vector2(transform.position.x+1, transform.position.y + 0.6f), Vector2.up, fanHeight, numberOfRays);
+     
         if (hit)
         {
-            Debug.Log("non");
+            Debug.Log(hit.transform.gameObject);
             PlayerController.instance.velocity.y += velocityIncrement;
+            
         }
-
     }
     private RaycastHit2D DetectCollision(Vector2 startPoint, Vector2 endPoint, Vector2 direction, float rayDistance, int rayNumber)
     {
@@ -48,11 +49,12 @@ public class Fan : MonoBehaviour
             x += (endPoint.x - startPoint.x) / (rayNumber + 1);
             y += (endPoint.y - startPoint.y) / (rayNumber + 1);
             hit = Physics2D.Raycast(new Vector2(x, y), direction, rayDistance);
-
+            Debug.DrawLine(new Vector2(x, y), new Vector2(x, y + fanHeight), Color.blue, 0.1f);
             if (hit)
             {
                 return hit;
             }
+            
         }
 
         return hit;

@@ -40,29 +40,38 @@ public class InputManager : MonoBehaviour
         player.Grab(direction);
 
 
+
+
         if (Filter(Input.GetAxis("Dash")) > 0.5f || Input.GetButtonDown("X"))
         {
-            Vector2 dashDirection = new Vector2(direction.x, direction.y);
+            if (PauseController.Instance.onPause)
+            {
+                PauseController.Instance.showInstructions();
+            }
+            else 
+            {
+                Vector2 dashDirection = new Vector2(direction.x, direction.y);
 
-            if (Mathf.Abs(dashDirection.x) > 0.5)
-            {
-                dashDirection.x = Mathf.Sign(dashDirection.x);
-            }
-            else
-            {
-                dashDirection.x = 0;
-            }
+                if (Mathf.Abs(dashDirection.x) > 0.5)
+                {
+                    dashDirection.x = Mathf.Sign(dashDirection.x);
+                }
+                else
+                {
+                    dashDirection.x = 0;
+                }
 
-            if (Mathf.Abs(dashDirection.y) > 0.5)
-            {
-                dashDirection.y = Mathf.Sign(dashDirection.y);
-            }
-            else
-            {
-                dashDirection.y = 0;
-            }
+                if (Mathf.Abs(dashDirection.y) > 0.5)
+                {
+                    dashDirection.y = Mathf.Sign(dashDirection.y);
+                }
+                else
+                {
+                    dashDirection.y = 0;
+                }
 
-            player.Dash(dashDirection.normalized);
+                player.Dash(dashDirection.normalized);
+            } 
         }
 
 
@@ -114,8 +123,15 @@ public class InputManager : MonoBehaviour
 
         if (Input.GetButtonDown("B"))
         {
-            print("B pressed");
-            player.Sprint();
+            if (PauseController.Instance.onPause)
+            {
+                PauseController.Instance.returnToMenu();
+            }
+            else
+            {
+                print("B pressed");
+                player.Sprint();
+            }
         }
         if (Input.GetButtonUp("B"))
         {
