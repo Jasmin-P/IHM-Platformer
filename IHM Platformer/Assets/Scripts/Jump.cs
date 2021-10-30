@@ -110,6 +110,26 @@ public class Jump : MonoBehaviour
         onWallJump = false;
         onSecondJump = true;
         timeStartJump = Time.time;
+
+        StartCoroutine("SecondJumpAnimation");
+    }
+
+    IEnumerator SecondJumpAnimation()
+    {
+        float timeCount = 0f; //On veut une full rotation en 1 saut
+        while (onSecondJump)
+        {
+            //On va prendre le gameobject auquel est rattaché le sprite renderer, cad le sprite tout seul, et on le fait tourner
+            float dt = Time.deltaTime;
+            PlayerController.instance.spriteRenderer.gameObject.transform.rotation = Quaternion.SlerpUnclamped(Quaternion.identity,Quaternion.Euler(0,0,Mathf.Sign(PlayerController.instance.velocity.x)*180),timeCount*8);
+            timeCount += dt;
+            yield return new WaitForSeconds(dt);
+        }
+        print("rotation re_init");
+        PlayerController.instance.spriteRenderer.gameObject.transform.rotation = Quaternion.identity;
+
+
+
     }
 
     private void StartWallJump()
