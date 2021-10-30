@@ -13,6 +13,9 @@ public class PlayerController : MonoBehaviour
 
     //Feedback
     public SpriteRenderer spriteRenderer;
+    public ParticleSystem trailLeftParticle; 
+    public ParticleSystem trailRightParticle;
+    public ParticleSystem jumpParticle;
 
     public Vector2 position;
     private Vector2 lastPosition;
@@ -45,6 +48,7 @@ public class PlayerController : MonoBehaviour
     public float groundAcceleration;
     public float walkSpeed;
     public float sprintSpeed;
+    private bool onSprint = false;
     public float actualMaxSpeed;
     public float maxYspeed;
 
@@ -63,7 +67,7 @@ public class PlayerController : MonoBehaviour
     public bool canDash = true;
 
 
-    int i = 0;
+    
 
     private void Awake()
     {
@@ -104,13 +108,36 @@ public class PlayerController : MonoBehaviour
         {
             spriteRenderer.color = Color.red;
         }
+
+        if (onJump)
+        {
+            jumpParticle.Play();
+        }
+
         
+        
+
+
         float velocity_sqrMagnitude = velocity.sqrMagnitude;
         velocity_n = velocity.normalized;
         
         if (velocity_sqrMagnitude > 1f) //dès qu'on bouge
         {
             spriteRenderer.size = new Vector2(1 + 0.2f * (2 * velocity_n.x * velocity_n.x - 1), 1 + 0.2f * (2 * velocity_n.y * velocity_n.y - 1));
+            
+            /*
+            if (onSprint)
+            {
+                if(velocity_n.x > 0)
+                {
+                    trailLeftParticle.Play();
+                }
+                else
+                {
+                    trailRightParticle.Play();
+                }
+            }
+            */
         }
         else //On bouge pas
         {
@@ -165,7 +192,9 @@ public class PlayerController : MonoBehaviour
 
 
         velocity += deceleration * Time.deltaTime;
+
         
+
 
         /*
         if (bottomDirectionLocked && velocity.y < 0)
@@ -199,6 +228,7 @@ public class PlayerController : MonoBehaviour
         position = new Vector2(transform.position.x + movement.x, transform.position.y + movement.y);
 
         transform.position = position;
+        
     }
 
     public void Move(Vector2 translatePosition)
@@ -339,11 +369,32 @@ public class PlayerController : MonoBehaviour
 
     public void Sprint()
     {
+        onSprint = true;
         actualMaxSpeed = sprintSpeed;
+        StartCoroutine("SprintTrail");
     }
 
     public void StopSprinting()
     {
+        onSprint = false;
         actualMaxSpeed = walkSpeed;
+        StopCoroutine("SprintTrail");
+    }
+
+    IEnumerator SprintTrail()
+    {
+        while (true)
+        {
+            if(velocity.x > 0)
+            {
+                trailLeftParticle.Play();
+            }
+            else
+            {
+                trailRightParticle.Play();
+            }
+            yield return new WaitForSeconds(0.1f);
+        }
+        
     }
 }
