@@ -73,6 +73,8 @@ public class InputManager : MonoBehaviour
                 }
 
                 player.Dash(dashDirection.normalized);
+                StartCoroutine(cameraShaker.Shake(0.2f, 1f));
+
             } 
         }
 
@@ -110,7 +112,7 @@ public class InputManager : MonoBehaviour
         if (Input.GetButtonDown("A"))
         {
             player.Jump();
-            StartCoroutine(cameraShaker.Shake(0.2f, 0.1f));
+            StartCoroutine(cameraShaker.Shake(0.1f, 0.3f));
         }
         if (Input.GetButtonUp("A"))
         {

@@ -16,6 +16,7 @@ public class PlayerController : MonoBehaviour
     public ParticleSystem trailLeftParticle; 
     public ParticleSystem trailRightParticle;
     public ParticleSystem jumpParticle;
+    public ParticleSystem deathParticle;
 
     public Vector2 position;
     private Vector2 lastPosition;
@@ -396,5 +397,10 @@ public class PlayerController : MonoBehaviour
             yield return new WaitForSeconds(0.1f);
         }
         
+    }
+
+    public void DieAnimation()
+    {
+        deathParticle.Play();
     }
 }
