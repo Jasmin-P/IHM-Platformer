@@ -225,25 +225,26 @@ public class PlayerCollider : MonoBehaviour
         //    movement.y += Vector2.Dot(movement, Vector2.down);
         //}
 
+        PlayerController.instance.bottomDirectionLocked = false;
+        PlayerController.instance.topDirectionLocked = false;
+        PlayerController.instance.leftDirectionLocked = false;
+        PlayerController.instance.rightDirectionLocked = false;
+
         if (movement.y < 0)
         {
-            PlayerController.instance.bottomDirectionLocked = false;
             hitDown = DetectCollision(bottomLeftPoint, bottomRightPoint, Vector2.down, Vector2.Dot(Vector2.down, movement), numberOfRays);
         }
         else
         {
-            PlayerController.instance.topDirectionLocked = false;
             hitUp = DetectCollision(topRightPoint, topLeftPoint, Vector2.up, movement.y, numberOfRays);
         }
 
         if (movement.x < 0)
         {
-            PlayerController.instance.leftDirectionLocked = false;
             hitLeft = DetectCollision(bottomLeftPoint, topLeftPoint, Vector2.left, -movement.x, numberOfRays);
         }
         else
         {
-            PlayerController.instance.rightDirectionLocked = false;
             hitRight = DetectCollision(bottomRightPoint, topRightPoint, Vector2.right, movement.x, numberOfRays);
         }
 

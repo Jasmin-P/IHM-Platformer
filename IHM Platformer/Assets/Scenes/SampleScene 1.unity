@@ -1002,9 +1002,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d65ec3f5ee96741438f41edb98b7a443, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxVelocity: 6
+  maxVelocity: 10
   velocityIncrement: 1
-  fanHeight: 10
+  fanHeight: 27
   numberOfRays: 10
 --- !u!1 &382704079
 GameObject:
@@ -18285,7 +18285,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   jumpForce: 15
   wallJumpDirection: {x: 0, y: 0}
-  wallJumpForce: {x: 10, y: 10}
+  wallJumpForce: {x: 20, y: 10}
   timeDurationJump: 0.2
 --- !u!114 &1233789096
 MonoBehaviour:
@@ -18550,9 +18550,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d65ec3f5ee96741438f41edb98b7a443, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxVelocity: 6
+  maxVelocity: 10
   velocityIncrement: 1
-  fanHeight: 2
+  fanHeight: 5
   numberOfRays: 10
 --- !u!1 &1311506480
 GameObject:

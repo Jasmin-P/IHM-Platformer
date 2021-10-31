@@ -67,6 +67,10 @@ public class PlayerController : MonoBehaviour
     public bool onDash = false;
     public bool canDash = true;
 
+    private float timeFlexibilityWallJump = 0.2f;
+    private float timeLastGrab;
+    private bool wallJumpPossible = false;
+
 
     
 
@@ -190,6 +194,10 @@ public class PlayerController : MonoBehaviour
         {
             velocity.y = -grabFallingSpeed;
         }
+        else if (wallJumpPossible)
+        {
+            TestIfWallJumpStillPossible();
+        }
 
 
         velocity += deceleration * Time.deltaTime;
@@ -311,7 +319,7 @@ public class PlayerController : MonoBehaviour
     // JumpButtonPressed
     public void Jump()
     {
-        if (jumpManager.StartJump(jumpCount))
+        if (jumpManager.StartJump(jumpCount, wallJumpPossible))
         {
             jumpPushed = false;
         }
@@ -350,19 +358,38 @@ public class PlayerController : MonoBehaviour
 
     public void Grab(Vector2 direction)
     {
-        if (leftDirectionLocked && direction.x < 0 && !onJump && velocity.y < 0)
+        if ((leftDirectionLocked && direction.x < 0 && !onJump && velocity.y < 0) || (rightDirectionLocked && direction.x > 0 && !onJump && velocity.y < 0))
         {
             onGrab = true;
-            grabDirection = direction;
-        }
-        else if (rightDirectionLocked && direction.x > 0 && !onJump && velocity.y < 0)
-        {
-            onGrab = true;
+            wallJumpPossible = true;
+            timeLastGrab = Time.time;
             grabDirection = direction;
         }
         else
         {
             onGrab = false;
+        }
+
+        if (rightDirectionLocked)
+        {
+            wallJumpPossible = true;
+            timeLastGrab = Time.time;
+            grabDirection = new Vector2(1, 0);
+        }
+        else if (leftDirectionLocked)
+        {
+            wallJumpPossible = true;
+            timeLastGrab = Time.time;
+            grabDirection = new Vector2(-1, 0);
+        }
+
+    }
+
+    private void TestIfWallJumpStillPossible()
+    {
+        if (Time.time - timeLastGrab > timeFlexibilityWallJump)
+        {
+            wallJumpPossible = false;
         }
     }
 
