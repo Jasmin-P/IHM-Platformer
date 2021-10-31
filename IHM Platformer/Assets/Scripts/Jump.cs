@@ -95,6 +95,7 @@ public class Jump : MonoBehaviour
 
         jumpCount--;
         onFirstJump = true;
+        jumpReleased = false;
         PlayerController.instance.velocity.y = jumpForce;
         variableJumpForce = jumpForce;
         timeStartJump = Time.time;
@@ -180,6 +181,7 @@ public class Jump : MonoBehaviour
         {
             onSecondJump = false;
             PlayerController.instance.onJump = false;
+            jumpReleased = false;
         }
         else
         {
@@ -193,6 +195,7 @@ public class Jump : MonoBehaviour
         {
             onWallJump = false;
             PlayerController.instance.onJump = false;
+            jumpReleased = false;
         }
         else
         {
