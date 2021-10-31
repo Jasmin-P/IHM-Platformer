@@ -16,7 +16,11 @@ public class PlayerController : MonoBehaviour
     public ParticleSystem trailLeftParticle; 
     public ParticleSystem trailRightParticle;
     public ParticleSystem jumpParticle;
-    public ParticleSystem deathParticle;
+
+
+    public Killer killerManager;
+
+    private Vector3 startingPosition;
 
     public Vector2 position;
     private Vector2 lastPosition;
@@ -89,6 +93,7 @@ public class PlayerController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        startingPosition = transform.position;
         position = transform.position;
         actualMaxSpeed = walkSpeed;
         playerCollider = GetComponent<PlayerCollider>();
@@ -426,8 +431,10 @@ public class PlayerController : MonoBehaviour
         
     }
 
-    public void DieAnimation()
+
+    public void KillPlayer()
     {
-        deathParticle.Play();
+        killerManager.KillPlayer(transform.position);
+        
     }
 }

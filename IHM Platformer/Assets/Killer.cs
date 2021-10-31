@@ -4,12 +4,20 @@ using UnityEngine;
 
 public class Killer : MonoBehaviour
 {
-    public Transform startingPoint;
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        
-        collision.gameObject.transform.position = startingPoint.position;
+    private Vector3 startingPosition;
+    public ParticleSystem deathParticle;
 
-        collision.gameObject.GetComponent<PlayerController>().DieAnimation();
+    private void Start()
+    {
+        startingPosition = PlayerController.instance.transform.position;    
+    }
+
+    public void KillPlayer(Vector3 position)
+    {
+        transform.position = position;
+        deathParticle.Play();
+        Debug.Log(deathParticle.transform.position);
+
+        PlayerController.instance.transform.position = startingPosition;
     }
 }
