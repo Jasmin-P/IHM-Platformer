@@ -13,6 +13,8 @@ public class InputManager : MonoBehaviour
 
     public float deadZone;
 
+    public CameraShaker cameraShaker;
+
 
     void Start()
     {
@@ -71,6 +73,8 @@ public class InputManager : MonoBehaviour
                 }
 
                 player.Dash(dashDirection.normalized);
+                StartCoroutine(cameraShaker.Shake(0.2f, 1f));
+
             } 
         }
 
@@ -108,6 +112,7 @@ public class InputManager : MonoBehaviour
         if (Input.GetButtonDown("A"))
         {
             player.Jump();
+            StartCoroutine(cameraShaker.Shake(0.1f, 0.3f));
         }
         if (Input.GetButtonUp("A"))
         {
@@ -118,6 +123,7 @@ public class InputManager : MonoBehaviour
         if (Input.GetButtonDown("X"))
         {
             player.Dash(direction);
+            StartCoroutine(cameraShaker.Shake(0.2f, 0.3f));
         }
         */
 
@@ -176,5 +182,7 @@ public class InputManager : MonoBehaviour
         
         yield return null;
     }
+
+   
 
 }
