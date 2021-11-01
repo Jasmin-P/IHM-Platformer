@@ -50,6 +50,8 @@ public class InputManager : MonoBehaviour
             {
                 PauseController.Instance.showInstructions();
             }
+            else if (VictoryController.Instance.onVictory)
+            {}
             else 
             {
                 Vector2 dashDirection = new Vector2(direction.x, direction.y);
@@ -133,6 +135,10 @@ public class InputManager : MonoBehaviour
             {
                 PauseController.Instance.returnToMenu();
             }
+            else if (VictoryController.Instance.onVictory)
+            {
+                VictoryController.Instance.returnToMenu();
+            }
             else
             {
                 print("B pressed");
@@ -146,7 +152,11 @@ public class InputManager : MonoBehaviour
         }
         if (Input.GetButtonDown("Plus"))
         {
-            PauseController.Instance.Pause();
+            if (!VictoryController.Instance.onVictory)
+            {
+                PauseController.Instance.Pause();
+            }
+            
         }
         
 

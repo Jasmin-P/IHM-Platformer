@@ -34,7 +34,7 @@ public class PauseController : MonoBehaviour
     // Start is called before the first frame update
     public void Pause()
     {
-        if (!onPause)
+        if (!onPause && !VictoryController.Instance.onVictory)
         {
             Time.timeScale = 0;
             PauseMenu.SetActive(true);

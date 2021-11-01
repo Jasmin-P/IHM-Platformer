@@ -154,6 +154,11 @@ public class PlayerController : MonoBehaviour
         }
         
 
+        if (transform.position.x > 33 && !VictoryController.Instance.onVictory)
+        {
+            VictoryController.Instance.Pause();
+        }
+
     }
 
     
