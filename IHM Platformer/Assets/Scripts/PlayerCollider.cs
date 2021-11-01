@@ -24,6 +24,7 @@ public class PlayerCollider : MonoBehaviour
     public int jumpNumberOfRays = 1;
 
     private LayerMask mask;
+    private int killingZoneLayerNumber = 7;
 
 
     public float collisionDistance; //Distance fixe. Si la distance à un objet est inférieure ou égale à celle-ci, on considère qu'il y a collision
@@ -37,7 +38,7 @@ public class PlayerCollider : MonoBehaviour
 
         UpdateBounds();
 
-        mask = LayerMask.GetMask("Wall");
+        mask = LayerMask.GetMask("Wall", "KillingZone");
     }
 
 
@@ -225,25 +226,26 @@ public class PlayerCollider : MonoBehaviour
         //    movement.y += Vector2.Dot(movement, Vector2.down);
         //}
 
+        PlayerController.instance.bottomDirectionLocked = false;
+        PlayerController.instance.topDirectionLocked = false;
+        PlayerController.instance.leftDirectionLocked = false;
+        PlayerController.instance.rightDirectionLocked = false;
+
         if (movement.y < 0)
         {
-            PlayerController.instance.bottomDirectionLocked = false;
             hitDown = DetectCollision(bottomLeftPoint, bottomRightPoint, Vector2.down, Vector2.Dot(Vector2.down, movement), numberOfRays);
         }
         else
         {
-            PlayerController.instance.topDirectionLocked = false;
             hitUp = DetectCollision(topRightPoint, topLeftPoint, Vector2.up, movement.y, numberOfRays);
         }
 
         if (movement.x < 0)
         {
-            PlayerController.instance.leftDirectionLocked = false;
             hitLeft = DetectCollision(bottomLeftPoint, topLeftPoint, Vector2.left, -movement.x, numberOfRays);
         }
         else
         {
-            PlayerController.instance.rightDirectionLocked = false;
             hitRight = DetectCollision(bottomRightPoint, topRightPoint, Vector2.right, movement.x, numberOfRays);
         }
 
@@ -253,6 +255,11 @@ public class PlayerCollider : MonoBehaviour
         {
             movement.y += (-hitDown.distance + Vector2.Dot(Vector2.down, movement));
             
+            if (hitDown.transform.gameObject.layer == killingZoneLayerNumber)
+            {
+                PlayerController.instance.KillPlayer();
+            }
+
             PlayerController.instance.velocity.y = 0;
             PlayerController.instance.bottomDirectionLocked = true;
 
@@ -260,19 +267,36 @@ public class PlayerCollider : MonoBehaviour
         else if (hitUp)
         {
             movement.y += (hitUp.distance - movement.y);
+
+            if (hitUp.transform.gameObject.layer == killingZoneLayerNumber)
+            {
+                PlayerController.instance.KillPlayer();
+            }
+
             PlayerController.instance.velocity.y = 0;
             PlayerController.instance.topDirectionLocked = true;
         }
         if (hitLeft)
         {
-            Debug.Log("hit!");
             movement.x += (-hitLeft.distance - movement.x);
+
+            if (hitLeft.transform.gameObject.layer == killingZoneLayerNumber)
+            {
+                PlayerController.instance.KillPlayer();
+            }
+
             PlayerController.instance.velocity.x = 0;
             PlayerController.instance.leftDirectionLocked = true;
         }
         else if (hitRight)
         {
             movement.x += (hitLeft.distance - movement.x);
+
+            if (hitRight.transform.gameObject.layer == killingZoneLayerNumber)
+            {
+                PlayerController.instance.KillPlayer();
+            }
+
             PlayerController.instance.velocity.x = 0;
             PlayerController.instance.rightDirectionLocked = true;
         }

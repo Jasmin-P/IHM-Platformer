@@ -16,7 +16,11 @@ public class PlayerController : MonoBehaviour
     public ParticleSystem trailLeftParticle; 
     public ParticleSystem trailRightParticle;
     public ParticleSystem jumpParticle;
-    public ParticleSystem deathParticle;
+
+
+    public Killer killerManager;
+
+    private Vector3 startingPosition;
 
     public Vector2 position;
     private Vector2 lastPosition;
@@ -67,6 +71,10 @@ public class PlayerController : MonoBehaviour
     public bool onDash = false;
     public bool canDash = true;
 
+    private float timeFlexibilityWallJump = 0.2f;
+    private float timeLastGrab;
+    private bool wallJumpPossible = false;
+
 
     
 
@@ -85,6 +93,7 @@ public class PlayerController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        startingPosition = transform.position;
         position = transform.position;
         actualMaxSpeed = walkSpeed;
         playerCollider = GetComponent<PlayerCollider>();
@@ -189,6 +198,10 @@ public class PlayerController : MonoBehaviour
         if (onGrab)
         {
             velocity.y = -grabFallingSpeed;
+        }
+        else if (wallJumpPossible)
+        {
+            TestIfWallJumpStillPossible();
         }
 
 
@@ -311,7 +324,7 @@ public class PlayerController : MonoBehaviour
     // JumpButtonPressed
     public void Jump()
     {
-        if (jumpManager.StartJump(jumpCount))
+        if (jumpManager.StartJump(jumpCount, wallJumpPossible))
         {
             jumpPushed = false;
         }
@@ -350,19 +363,38 @@ public class PlayerController : MonoBehaviour
 
     public void Grab(Vector2 direction)
     {
-        if (leftDirectionLocked && direction.x < 0 && !onJump && velocity.y < 0)
+        if ((leftDirectionLocked && direction.x < 0 && !onJump && velocity.y < 0) || (rightDirectionLocked && direction.x > 0 && !onJump && velocity.y < 0))
         {
             onGrab = true;
-            grabDirection = direction;
-        }
-        else if (rightDirectionLocked && direction.x > 0 && !onJump && velocity.y < 0)
-        {
-            onGrab = true;
+            wallJumpPossible = true;
+            timeLastGrab = Time.time;
             grabDirection = direction;
         }
         else
         {
             onGrab = false;
+        }
+
+        if (rightDirectionLocked)
+        {
+            wallJumpPossible = true;
+            timeLastGrab = Time.time;
+            grabDirection = new Vector2(1, 0);
+        }
+        else if (leftDirectionLocked)
+        {
+            wallJumpPossible = true;
+            timeLastGrab = Time.time;
+            grabDirection = new Vector2(-1, 0);
+        }
+
+    }
+
+    private void TestIfWallJumpStillPossible()
+    {
+        if (Time.time - timeLastGrab > timeFlexibilityWallJump)
+        {
+            wallJumpPossible = false;
         }
     }
 
@@ -399,8 +431,10 @@ public class PlayerController : MonoBehaviour
         
     }
 
-    public void DieAnimation()
+
+    public void KillPlayer()
     {
-        deathParticle.Play();
+        killerManager.KillPlayer(transform.position);
+        
     }
 }

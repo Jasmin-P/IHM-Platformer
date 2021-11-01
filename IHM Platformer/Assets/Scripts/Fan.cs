@@ -33,7 +33,12 @@ public class Fan : MonoBehaviour
         if (hit)
         {
             Debug.Log(hit.transform.gameObject);
-            PlayerController.instance.velocity.y += velocityIncrement;
+
+            if (PlayerController.instance.velocity.y < maxVelocity)
+            {
+                PlayerController.instance.velocity.y += velocityIncrement;
+            }
+            
             
         }
     }

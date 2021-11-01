@@ -32,7 +32,7 @@ public class Jump : MonoBehaviour
 
 
     // Appelé lorsque la touche de jump est préssée. Decide du jump à faire et le lance.
-    public bool StartJump(float playerControllerJumpCount)
+    public bool StartJump(float playerControllerJumpCount, bool wallJumpPossible)
     {
         jumpCount = playerControllerJumpCount;
 
@@ -42,7 +42,7 @@ public class Jump : MonoBehaviour
             return true;
         }
 
-        else if (PlayerController.instance.onGrab)
+        else if (wallJumpPossible && !onWallJump)
         {
             StartWallJump();
             return true;
@@ -95,6 +95,7 @@ public class Jump : MonoBehaviour
 
         jumpCount--;
         onFirstJump = true;
+        jumpReleased = false;
         PlayerController.instance.velocity.y = jumpForce;
         variableJumpForce = jumpForce;
         timeStartJump = Time.time;
@@ -146,6 +147,7 @@ public class Jump : MonoBehaviour
         }
         onWallJump = true;
         onFirstJump = false;
+        onSecondJump = false;
         timeStartJump = Time.time;
     }
 
@@ -179,6 +181,7 @@ public class Jump : MonoBehaviour
         {
             onSecondJump = false;
             PlayerController.instance.onJump = false;
+            jumpReleased = false;
         }
         else
         {
@@ -192,6 +195,7 @@ public class Jump : MonoBehaviour
         {
             onWallJump = false;
             PlayerController.instance.onJump = false;
+            jumpReleased = false;
         }
         else
         {
