@@ -27,6 +27,10 @@ public class PauseController : MonoBehaviour
         }
         Instance = this;
     }
+    public void Start()
+    {
+        Time.timeScale = 1; 
+    }
     // Start is called before the first frame update
     public void Pause()
     {

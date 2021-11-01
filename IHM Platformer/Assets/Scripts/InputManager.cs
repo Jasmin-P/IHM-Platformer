@@ -147,7 +147,6 @@ public class InputManager : MonoBehaviour
         if (Input.GetButtonDown("Plus"))
         {
             PauseController.Instance.Pause();
-            Debug.Log("Pause!");
         }
         
 
