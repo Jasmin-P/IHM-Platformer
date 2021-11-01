@@ -112,7 +112,7 @@ public class InputManager : MonoBehaviour
         if (Input.GetButtonDown("A"))
         {
             player.Jump();
-            StartCoroutine(cameraShaker.Shake(0.1f, 0.3f));
+            StartCoroutine(cameraShaker.Shake(0.1f, 0.1f));
         }
         if (Input.GetButtonUp("A"))
         {

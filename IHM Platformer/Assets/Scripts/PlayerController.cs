@@ -16,6 +16,7 @@ public class PlayerController : MonoBehaviour
     public ParticleSystem trailLeftParticle; 
     public ParticleSystem trailRightParticle;
     public ParticleSystem jumpParticle;
+    public ParticleSystem spawnParticle;
 
 
     public Killer killerManager;
@@ -74,8 +75,6 @@ public class PlayerController : MonoBehaviour
     private float timeFlexibilityWallJump = 0.2f;
     private float timeLastGrab;
     private bool wallJumpPossible = false;
-
-
     
 
     private void Awake()
@@ -435,6 +434,6 @@ public class PlayerController : MonoBehaviour
     public void KillPlayer()
     {
         killerManager.KillPlayer(transform.position);
-        
+        spawnParticle.Play();
     }
 }
