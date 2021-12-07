@@ -27,7 +27,6 @@ public class Fan : MonoBehaviour
 
     private void CheckPlayer()
     {
-        Debug.Log("oui");
         RaycastHit2D hit = DetectCollision(new Vector2(transform.position.x - 1, transform.position.y + 0.6f), new Vector2(transform.position.x+1, transform.position.y + 0.6f), Vector2.up, fanHeight, numberOfRays);
      
         if (hit)

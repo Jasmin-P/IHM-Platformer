@@ -126,7 +126,6 @@ public class Jump : MonoBehaviour
             timeCount += dt;
             yield return new WaitForSeconds(dt);
         }
-        print("rotation re_init");
         PlayerController.instance.spriteRenderer.gameObject.transform.rotation = Quaternion.identity;
 
 

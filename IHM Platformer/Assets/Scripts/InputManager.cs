@@ -141,13 +141,11 @@ public class InputManager : MonoBehaviour
             }
             else
             {
-                print("B pressed");
                 player.Sprint();
             }
         }
         if (Input.GetButtonUp("B"))
         {
-            print("B released");
             player.StopSprinting();
         }
         if (Input.GetButtonDown("Plus"))
