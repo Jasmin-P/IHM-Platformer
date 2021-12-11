@@ -13,6 +13,7 @@ public class SerialHandler : MonoBehaviour
 
     [SerializeField] private PlayerController playerController;
     [SerializeField] private WireHandler wireHandler;
+    [SerializeField] private WireParsing wireParser;
 
     private int speed_value_recieved = 0;
     private Vector2 direction = new Vector2(0, 0);
@@ -41,7 +42,7 @@ public class SerialHandler : MonoBehaviour
         {
             message = message.Trim('\r');
         }
-
+        /*
         switch (message)
         {
             case "X +":
@@ -60,10 +61,19 @@ public class SerialHandler : MonoBehaviour
                 wireHandler.WireFinished();
                 break;
         }
+        */
+        /*
         if (message.Split(' ')[0] == "speed")
         {
             int value = Int32.Parse(message.Split(' ')[1]);
         }
+        */
+
+        if (message.Split(' ')[0] == "c" || message.Split(' ')[0] == "u")
+        {
+            wireParser.ParseMessage(message);
+        }
+
 
 
     }
@@ -78,9 +88,15 @@ public class SerialHandler : MonoBehaviour
         _serial.Close();
     }
 
-    public void WireTouched()
+    public void WireStart()
     {
         _serial.WriteLine("wire");
     }
+
+    public void WireEnd()
+    {
+        _serial.WriteLine("end");
+    }
+
 }
 
